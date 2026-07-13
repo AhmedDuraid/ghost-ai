@@ -1,8 +1,10 @@
 "use client"
 
+import { UserButton } from "@clerk/nextjs"
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import { AUTH_ROUTES } from "@/lib/auth-routes"
 import { cn } from "@/lib/utils"
 
 interface EditorNavbarProps {
@@ -41,7 +43,9 @@ export function EditorNavbar({
 
       <div className="flex min-w-0 flex-1 items-center justify-center" />
 
-      <div className="flex min-w-0 flex-1 items-center justify-end" />
+      <div className="flex min-w-0 flex-1 items-center justify-end">
+        <UserButton signInUrl={AUTH_ROUTES.signIn} />
+      </div>
     </header>
   )
 }
