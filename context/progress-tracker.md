@@ -4,7 +4,7 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Current Phase
 
-- Authentication redirect stabilization complete
+- Project dialogs and editor home implementation complete
 
 ## Current Goal
 
@@ -40,6 +40,8 @@ Update this file whenever the current phase, active feature, or implementation s
 - Directed sign-out fallback behavior to `/sign-in`.
 - Updated `proxy.ts` public route matching to normalize configured auth routes before matching.
 - Verified redirect stabilization with `npm run lint` and `npm run build`.
+- Implemented `context/feature-specs/04-project-dialogs.md` editor home, mock project sidebar actions, and project dialogs.
+- Verified `context/feature-specs/04-project-dialogs.md` with `npm run lint` and `npm run build`.
 
 ## In Progress
 
@@ -59,6 +61,7 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Session Notes
 
+- Started implementation of `context/feature-specs/04-project-dialogs.md`.
 - Completed implementation of `context/feature-specs/01-design-system.md`.
 - Initial sandboxed build failed because `next/font` could not fetch Google Fonts; rerunning `npm run build` with approved network access passed.
 - Started implementation of `context/feature-specs/02-editor.md`.
@@ -71,3 +74,5 @@ Update this file whenever the current phase, active feature, or implementation s
 - Started redirect stabilization for the issues documented in `context/current-issues.md`.
 - Completed redirect stabilization and verified with lint and production build.
 - Cleared the resolved local issue notes and moved `context/current-issues.md` to the ignored local scratchpad list.
+- Completed implementation of `context/feature-specs/04-project-dialogs.md`.
+- Initial sandboxed build failed because `next/font` could not fetch Google Fonts; rerunning `npm run build` with approved network access passed.
