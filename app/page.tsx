@@ -1,5 +1,14 @@
-import { EditorLayout } from "@/components/editor/editor-layout";
+import { auth } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 
-export default function Home() {
-  return <EditorLayout />;
+import { AUTH_ROUTES } from "@/lib/auth-routes";
+
+export default async function Home() {
+  const { isAuthenticated } = await auth();
+
+  if (isAuthenticated) {
+    redirect(AUTH_ROUTES.editor);
+  }
+
+  redirect(AUTH_ROUTES.signIn);
 }
