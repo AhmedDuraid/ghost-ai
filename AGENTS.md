@@ -20,3 +20,5 @@ Read the following files in order before implementing or making any architectura
 Update `context/progress-tracker.md` after each meaningful implementation change.
 
 If implementation changes the architecture, scope, or standards documented in the context files, update the relevant file before continuing.
+
+Before you made any change tell me what is your plan, and what will you change step by step and ask me for confirmation.

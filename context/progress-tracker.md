@@ -8,7 +8,7 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Current Goal
 
-- Clerk sign-in, sign-up, and sign-out redirects are stabilized against the issues documented in `context/current-issues.md`.
+- No active implementation task.
 
 ## Completed
 
@@ -70,3 +70,4 @@ Update this file whenever the current phase, active feature, or implementation s
 - Completed Clerk auth integration and verified with lint and production build.
 - Started redirect stabilization for the issues documented in `context/current-issues.md`.
 - Completed redirect stabilization and verified with lint and production build.
+- Cleared the resolved local issue notes and moved `context/current-issues.md` to the ignored local scratchpad list.
