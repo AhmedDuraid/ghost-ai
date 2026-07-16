@@ -42,3 +42,5 @@ context/current-issues.md
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+/app/generated/prisma
