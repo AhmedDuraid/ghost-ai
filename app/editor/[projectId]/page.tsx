@@ -1,6 +1,9 @@
-import { notFound } from "next/navigation"
+import { redirect } from "next/navigation"
 
-import { EditorLayout } from "@/components/editor/editor-layout"
+import { AccessDenied } from "@/components/editor/access-denied"
+import { WorkspaceShell } from "@/components/editor/workspace-shell"
+import { AUTH_ROUTES } from "@/lib/auth-routes"
+import { getCurrentProjectIdentity } from "@/lib/project-access"
 import { getAccessibleEditorProject, getEditorProjectLists } from "@/lib/project-data"
 
 interface EditorWorkspacePageProps {
@@ -13,17 +16,23 @@ export default async function EditorWorkspacePage({
   params,
 }: EditorWorkspacePageProps) {
   const { projectId } = await params
+  const identity = await getCurrentProjectIdentity()
+
+  if (!identity.userId) {
+    redirect(AUTH_ROUTES.signIn)
+  }
+
   const [projectLists, project] = await Promise.all([
-    getEditorProjectLists(),
-    getAccessibleEditorProject(projectId),
+    getEditorProjectLists(identity),
+    getAccessibleEditorProject(projectId, identity),
   ])
 
   if (!project) {
-    notFound()
+    return <AccessDenied />
   }
 
   return (
-    <EditorLayout
+    <WorkspaceShell
       {...projectLists}
       activeProjectId={project.id}
       projectName={project.name}

@@ -61,6 +61,13 @@ Update this file whenever the current phase, active feature, or implementation s
 - Added `app/editor/[projectId]/page.tsx` so project creation and sidebar navigation can open a real workspace route.
 - Updated the editor sidebar and dialogs to use real project data, room ID previews, rename prefills, and active-workspace delete redirects.
 - Verified `context/feature-specs/07-wire-editor-home.md` with `npm run build`.
+- Implemented `context/feature-specs/08-editor-workspace-shell.md`.
+- Added `lib/project-access.ts` to centralize current Clerk identity lookup and project access filtering by owner or collaborator.
+- Added `components/editor/access-denied.tsx` for missing or unauthorized workspace access.
+- Added `components/editor/workspace-shell.tsx` with the dedicated workspace navbar, canvas placeholder, AI sidebar placeholder, and existing project sidebar/dialog integration.
+- Updated `app/editor/[projectId]/page.tsx` to remain server-rendered, redirect unauthenticated users to `/sign-in`, and render `AccessDenied` for missing or unauthorized projects.
+- Refactored `lib/project-data.ts` to reuse the shared project access helper.
+- Verified `context/feature-specs/08-editor-workspace-shell.md` with `npm run build`.
 
 ## In Progress
 
@@ -81,6 +88,9 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Session Notes
 
+- Completed implementation of `context/feature-specs/08-editor-workspace-shell.md`.
+- Initial sandboxed `npm run build` failed because `next/font` could not fetch Google Fonts; rerunning `npm run build` with approved network access passed.
+- Started implementation of `context/feature-specs/08-editor-workspace-shell.md`.
 - Completed implementation of `context/feature-specs/07-wire-editor-home.md`.
 - The first sandboxed `npm run build` failed because `next/font` could not fetch Google Fonts; rerunning `npm run build` with approved network access passed.
 - Started implementation of `context/feature-specs/07-wire-editor-home.md`.

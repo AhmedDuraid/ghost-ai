@@ -1,7 +1,7 @@
-import { auth, currentUser } from "@clerk/nextjs/server"
 import { redirect } from "next/navigation"
 
 import { AUTH_ROUTES } from "@/lib/auth-routes"
+import { buildProjectAccessWhere, getCurrentProjectIdentity } from "@/lib/project-access"
 import { prisma } from "@/lib/prisma"
 
 export interface EditorProjectSummary {
@@ -42,24 +42,17 @@ function toEditorProjectSummary(
   } satisfies EditorProjectSummary
 }
 
-async function getCurrentUserEmailAddress() {
-  const user = await currentUser()
+export async function getEditorProjectLists(
+  identity?: Awaited<ReturnType<typeof getCurrentProjectIdentity>>
+): Promise<EditorProjectLists> {
+  const resolvedIdentity = identity ?? (await getCurrentProjectIdentity())
 
-  return (
-    user?.primaryEmailAddress?.emailAddress ??
-    user?.emailAddresses[0]?.emailAddress ??
-    null
-  )
-}
-
-export async function getEditorProjectLists(): Promise<EditorProjectLists> {
-  const { userId } = await auth()
-
-  if (!userId) {
+  if (!resolvedIdentity.userId) {
     redirect(AUTH_ROUTES.signIn)
   }
 
-  const emailAddress = await getCurrentUserEmailAddress()
+  const userId = resolvedIdentity.userId
+  const accessWhere = buildProjectAccessWhere(resolvedIdentity)
   const [ownedProjects, sharedProjects] = await Promise.all([
     prisma.project.findMany({
       where: {
@@ -74,14 +67,10 @@ export async function getEditorProjectLists(): Promise<EditorProjectLists> {
         ownerId: true,
       },
     }),
-    emailAddress
+    resolvedIdentity.primaryEmailAddress && accessWhere
       ? prisma.project.findMany({
           where: {
-            collaborators: {
-              some: {
-                collaboratorEmail: emailAddress,
-              },
-            },
+            ...accessWhere,
           },
           orderBy: {
             createdAt: "desc",
@@ -105,34 +94,21 @@ export async function getEditorProjectLists(): Promise<EditorProjectLists> {
   }
 }
 
-export async function getAccessibleEditorProject(projectId: string) {
-  const { userId } = await auth()
+export async function getAccessibleEditorProject(
+  projectId: string,
+  identity?: Awaited<ReturnType<typeof getCurrentProjectIdentity>>
+) {
+  const resolvedIdentity = identity ?? (await getCurrentProjectIdentity())
+  const accessWhere = buildProjectAccessWhere(resolvedIdentity)
 
-  if (!userId) {
-    redirect(AUTH_ROUTES.signIn)
+  if (!accessWhere) {
+    return null
   }
-
-  const emailAddress = await getCurrentUserEmailAddress()
 
   return prisma.project.findFirst({
     where: {
       id: projectId,
-      OR: [
-        {
-          ownerId: userId,
-        },
-        ...(emailAddress
-          ? [
-              {
-                collaborators: {
-                  some: {
-                    collaboratorEmail: emailAddress,
-                  },
-                },
-              },
-            ]
-          : []),
-      ],
+      ...accessWhere,
     },
     select: {
       id: true,
