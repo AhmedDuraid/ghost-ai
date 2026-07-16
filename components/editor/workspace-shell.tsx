@@ -5,27 +5,37 @@ import { Bot, PanelLeftClose, PanelLeftOpen, Share2 } from "lucide-react"
 
 import { ProjectDialogs } from "@/components/editor/project-dialogs"
 import { ProjectSidebar } from "@/components/editor/project-sidebar"
+import { ShareDialog } from "@/components/editor/share-dialog"
 import { Button } from "@/components/ui/button"
 import { useProjectActions } from "@/hooks/use-project-actions"
+import { useShareDialog } from "@/hooks/use-share-dialog"
 import type { EditorProjectSummary } from "@/lib/project-data"
 import { cn } from "@/lib/utils"
 
 interface WorkspaceShellProps {
+  canManageAccess: boolean
   ownedProjects: EditorProjectSummary[]
   sharedProjects: EditorProjectSummary[]
   activeProjectId: string
+  projectId: string
   projectName: string
 }
 
 export function WorkspaceShell({
+  canManageAccess,
   ownedProjects,
   sharedProjects,
   activeProjectId,
+  projectId,
   projectName,
 }: WorkspaceShellProps) {
   const [isProjectSidebarOpen, setIsProjectSidebarOpen] = useState(true)
   const [isAiSidebarOpen, setIsAiSidebarOpen] = useState(true)
   const projectActions = useProjectActions({ activeProjectId })
+  const shareDialog = useShareDialog({
+    canManageAccess,
+    projectId,
+  })
   const SidebarIcon = isProjectSidebarOpen ? PanelLeftClose : PanelLeftOpen
 
   return (
@@ -54,7 +64,12 @@ export function WorkspaceShell({
         </div>
 
         <div className="flex items-center gap-2">
-          <Button type="button" variant="outline" className="bg-elevated text-copy-primary">
+          <Button
+            type="button"
+            variant="outline"
+            className="bg-elevated text-copy-primary"
+            onClick={() => shareDialog.handleOpenChange(true)}
+          >
             <Share2 className="h-4 w-4" />
             Share
           </Button>
@@ -134,7 +149,23 @@ export function WorkspaceShell({
         onRenameProject={projectActions.submitRenameProject}
         onDeleteProject={projectActions.submitDeleteProject}
       />
+      <ShareDialog
+        canManageAccess={shareDialog.canManageAccess}
+        collaborators={shareDialog.collaborators}
+        copied={shareDialog.copied}
+        errorMessage={shareDialog.errorMessage}
+        inviteEmail={shareDialog.inviteEmail}
+        isInviting={shareDialog.isInviting}
+        isLoading={shareDialog.isLoading}
+        isOpen={shareDialog.isOpen}
+        projectName={projectName}
+        removingCollaboratorId={shareDialog.removingCollaboratorId}
+        onCopyLink={shareDialog.copyProjectLink}
+        onInviteCollaborator={shareDialog.inviteCollaborator}
+        onInviteEmailChange={shareDialog.setInviteEmail}
+        onOpenChange={shareDialog.handleOpenChange}
+        onRemoveCollaborator={shareDialog.removeCollaborator}
+      />
     </div>
   )
 }
-

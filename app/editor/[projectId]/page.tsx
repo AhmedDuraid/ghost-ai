@@ -35,6 +35,8 @@ export default async function EditorWorkspacePage({
     <WorkspaceShell
       {...projectLists}
       activeProjectId={project.id}
+      canManageAccess={project.ownerId === identity.userId}
+      projectId={project.id}
       projectName={project.name}
     />
   )

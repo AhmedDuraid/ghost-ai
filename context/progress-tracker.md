@@ -68,6 +68,11 @@ Update this file whenever the current phase, active feature, or implementation s
 - Updated `app/editor/[projectId]/page.tsx` to remain server-rendered, redirect unauthenticated users to `/sign-in`, and render `AccessDenied` for missing or unauthorized projects.
 - Refactored `lib/project-data.ts` to reuse the shared project access helper.
 - Verified `context/feature-specs/08-editor-workspace-shell.md` with `npm run build`.
+- Implemented `context/feature-specs/09-share-dialog.md`.
+- Added owner-guarded collaborator API routes for listing, inviting, and removing project collaborators.
+- Added Clerk Backend API enrichment for collaborator names and avatar images with email-only fallback when no Clerk user is found.
+- Added the workspace share dialog with invite, remove, copy-link, and read-only collaborator access states.
+- Verified `context/feature-specs/09-share-dialog.md` with `npm run build`.
 
 ## In Progress
 
@@ -88,6 +93,9 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Session Notes
 
+- Completed implementation of `context/feature-specs/09-share-dialog.md`.
+- Initial sandboxed `npm run build` failed because `next/font` could not fetch Google Fonts; rerunning `npm run build` with approved network access passed.
+- Started implementation of `context/feature-specs/09-share-dialog.md`.
 - Completed implementation of `context/feature-specs/08-editor-workspace-shell.md`.
 - Initial sandboxed `npm run build` failed because `next/font` could not fetch Google Fonts; rerunning `npm run build` with approved network access passed.
 - Started implementation of `context/feature-specs/08-editor-workspace-shell.md`.
