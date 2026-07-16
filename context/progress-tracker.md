@@ -73,6 +73,10 @@ Update this file whenever the current phase, active feature, or implementation s
 - Added Clerk Backend API enrichment for collaborator names and avatar images with email-only fallback when no Clerk user is found.
 - Added the workspace share dialog with invite, remove, copy-link, and read-only collaborator access states.
 - Verified `context/feature-specs/09-share-dialog.md` with `npm run build`.
+- Updated the editor workspace shell so the project sidebar closes on outside clicks and the AI Assistant auto-opens on page load, then closes after 2 seconds before returning to normal toggle behavior.
+- Verified the workspace shell interaction update with `npm run build`.
+- Removed the desktop dimming from the project sidebar click-catcher so the editor canvas stays visually clear while the sidebar is open.
+- Verified the sidebar backdrop adjustment with `npm run build`.
 
 ## In Progress
 

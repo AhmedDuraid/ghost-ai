@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Bot, PanelLeftClose, PanelLeftOpen, Share2 } from "lucide-react"
 
 import { ProjectDialogs } from "@/components/editor/project-dialogs"
@@ -37,6 +37,16 @@ export function WorkspaceShell({
     projectId,
   })
   const SidebarIcon = isProjectSidebarOpen ? PanelLeftClose : PanelLeftOpen
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      setIsAiSidebarOpen(false)
+    }, 2000)
+
+    return () => {
+      window.clearTimeout(timeoutId)
+    }
+  }, [])
 
   return (
     <div className="relative flex h-screen min-h-screen flex-col overflow-hidden bg-base text-copy-primary">
