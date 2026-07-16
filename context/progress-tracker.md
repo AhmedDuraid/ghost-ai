@@ -4,7 +4,7 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Current Phase
 
-- Project dialogs and editor home implementation complete
+- Prisma schema and data layer implementation complete
 
 ## Current Goal
 
@@ -42,6 +42,12 @@ Update this file whenever the current phase, active feature, or implementation s
 - Verified redirect stabilization with `npm run lint` and `npm run build`.
 - Implemented `context/feature-specs/04-project-dialogs.md` editor home, mock project sidebar actions, and project dialogs.
 - Verified `context/feature-specs/04-project-dialogs.md` with `npm run lint` and `npm run build`.
+- Implemented `context/feature-specs/05-prisma.md` Prisma data layer.
+- Added `Project` and `ProjectCollaborator` models plus `ProjectStatus` enum in `prisma/models/project.prisma`.
+- Added `lib/prisma.ts` as a cached Prisma singleton with Prisma Postgres Accelerate and direct Postgres adapter branching.
+- Updated `prisma.config.ts` to load `.env` and `.env.local` for Prisma CLI commands and use Prisma 7 `env()` datasource config.
+- Generated Prisma Client and applied the first migration at `prisma/migrations/20260716161406_init_project_data/migration.sql`.
+- Verified `context/feature-specs/05-prisma.md` with `npx prisma validate`, `npx prisma generate`, `npx prisma migrate dev --name init_project_data`, and `npm run build`.
 
 ## In Progress
 
@@ -58,6 +64,7 @@ Update this file whenever the current phase, active feature, or implementation s
 ## Architecture Decisions
 
 - Add decisions that affect the system design or data model.
+- Prisma CLI configuration now loads both `.env` and `.env.local` so local app and migration commands resolve the same `DATABASE_URL`.
 
 ## Session Notes
 
@@ -76,3 +83,9 @@ Update this file whenever the current phase, active feature, or implementation s
 - Cleared the resolved local issue notes and moved `context/current-issues.md` to the ignored local scratchpad list.
 - Completed implementation of `context/feature-specs/04-project-dialogs.md`.
 - Initial sandboxed build failed because `next/font` could not fetch Google Fonts; rerunning `npm run build` with approved network access passed.
+- Started implementation of `context/feature-specs/05-prisma.md`.
+- Corrected the Prisma Accelerate dependency version to the published package release `3.0.1`.
+- Updated `prisma.config.ts` so Prisma 7 migration commands load `DATABASE_URL` from `.env.local`.
+- Created and applied the initial Prisma migration `20260716161406_init_project_data`.
+- Completed implementation of `context/feature-specs/05-prisma.md`.
+- Initial sandboxed `npm run build` failed because `next/font` could not fetch Google Fonts; rerunning `npm run build` with approved network access passed.
