@@ -1,5 +1,8 @@
 import { EditorLayout } from "@/components/editor/editor-layout"
+import { getEditorProjectLists } from "@/lib/project-data"
 
-export default function EditorPage() {
-  return <EditorLayout />
+export default async function EditorPage() {
+  const projectLists = await getEditorProjectLists()
+
+  return <EditorLayout {...projectLists} />
 }

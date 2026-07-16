@@ -5,17 +5,18 @@ import type { FormEvent } from "react"
 import { AlertTriangle } from "lucide-react"
 
 import { EditorDialog } from "@/components/editor/editor-dialog"
-import type { ProjectSummary } from "@/components/editor/use-project-dialogs"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import type { EditorProjectSummary } from "@/lib/project-data"
 
 interface ProjectDialogState {
   mode: "create" | "rename" | "delete"
-  project: ProjectSummary | null
+  project: EditorProjectSummary | null
 }
 
 interface ProjectDialogsProps {
   dialog: ProjectDialogState | null
+  errorMessage: string | null
   isLoading: boolean
   projectName: string
   slugPreview: string
@@ -42,6 +43,7 @@ function FieldLabel({
 
 export function ProjectDialogs({
   dialog,
+  errorMessage,
   isLoading,
   projectName,
   slugPreview,
@@ -108,9 +110,12 @@ export function ProjectDialogs({
             />
           </div>
           <div className="rounded-xl border border-surface-border bg-surface px-3 py-2">
-            <p className="text-xs font-medium text-copy-muted">Slug preview</p>
+            <p className="text-xs font-medium text-copy-muted">Room ID preview</p>
             <p className="mt-1 font-mono text-sm text-brand">{slugPreview}</p>
           </div>
+          {errorMessage ? (
+            <p className="text-sm text-state-error">{errorMessage}</p>
+          ) : null}
         </form>
       </EditorDialog>
 
@@ -156,6 +161,9 @@ export function ProjectDialogs({
               autoFocus
             />
           </div>
+          {errorMessage ? (
+            <p className="text-sm text-state-error">{errorMessage}</p>
+          ) : null}
         </form>
       </EditorDialog>
 
@@ -190,8 +198,17 @@ export function ProjectDialogs({
       >
         <div className="flex items-start gap-3 rounded-xl border border-surface-border bg-surface p-3 text-copy-secondary">
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-state-error" />
-          <p>Confirm deletion to remove this project from the sidebar.</p>
+          <p>
+            Confirm deletion to remove{" "}
+            <span className="font-medium text-copy-primary">
+              {dialog?.project?.name ?? "this project"}
+            </span>
+            .
+          </p>
         </div>
+        {errorMessage ? (
+          <p className="mt-3 text-sm text-state-error">{errorMessage}</p>
+        ) : null}
       </EditorDialog>
     </>
   )
