@@ -1,20 +1,22 @@
 "use client"
 
+import Link from "next/link"
 import { Pencil, Plus, Trash2, X } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import type { ProjectSummary } from "@/components/editor/use-project-dialogs"
+import type { EditorProjectSummary } from "@/lib/project-data"
 import { cn } from "@/lib/utils"
 
 interface ProjectSidebarProps {
   isOpen: boolean
   onClose: () => void
-  ownedProjects: ProjectSummary[]
-  sharedProjects: ProjectSummary[]
+  ownedProjects: EditorProjectSummary[]
+  sharedProjects: EditorProjectSummary[]
+  activeProjectId?: string
   onCreateProject: () => void
-  onRenameProject: (project: ProjectSummary) => void
-  onDeleteProject: (project: ProjectSummary) => void
+  onRenameProject: (project: EditorProjectSummary) => void
+  onDeleteProject: (project: EditorProjectSummary) => void
   className?: string
 }
 
@@ -28,12 +30,14 @@ function EmptyProjectState({ label }: { label: string }) {
 
 function ProjectList({
   projects,
+  activeProjectId,
   onRenameProject,
   onDeleteProject,
 }: {
-  projects: ProjectSummary[]
-  onRenameProject: (project: ProjectSummary) => void
-  onDeleteProject: (project: ProjectSummary) => void
+  projects: EditorProjectSummary[]
+  activeProjectId?: string
+  onRenameProject: (project: EditorProjectSummary) => void
+  onDeleteProject: (project: EditorProjectSummary) => void
 }) {
   return (
     <div className="space-y-2">
@@ -42,14 +46,28 @@ function ProjectList({
           key={project.id}
           className="group flex min-h-16 items-center gap-3 rounded-2xl border border-surface-border bg-elevated/70 px-3 py-2 transition-colors hover:border-surface-border-subtle hover:bg-subtle/80"
         >
-          <div className="min-w-0 flex-1">
+          <Link
+            href={`/editor/${project.id}`}
+            onClick={(event) => {
+              if (
+                (event.target as HTMLElement).closest("button") ||
+                project.id === activeProjectId
+              ) {
+                event.preventDefault()
+              }
+            }}
+            className={cn(
+              "min-w-0 flex-1 rounded-xl px-1 py-1 transition-colors",
+              project.id === activeProjectId && "bg-accent-dim"
+            )}
+          >
             <p className="truncate text-sm font-medium text-copy-primary">
               {project.name}
             </p>
             <p className="mt-1 truncate font-mono text-xs text-copy-muted">
-              {project.slug}
+              {project.id}
             </p>
-          </div>
+          </Link>
 
           {project.owned ? (
             <div className="flex shrink-0 items-center gap-1 opacity-100 md:opacity-0 md:transition-opacity md:group-hover:opacity-100 md:group-focus-within:opacity-100">
@@ -86,6 +104,7 @@ export function ProjectSidebar({
   onClose,
   ownedProjects,
   sharedProjects,
+  activeProjectId,
   onCreateProject,
   onRenameProject,
   onDeleteProject,
@@ -139,6 +158,7 @@ export function ProjectSidebar({
             {ownedProjects.length > 0 ? (
               <ProjectList
                 projects={ownedProjects}
+                activeProjectId={activeProjectId}
                 onRenameProject={onRenameProject}
                 onDeleteProject={onDeleteProject}
               />
@@ -150,6 +170,7 @@ export function ProjectSidebar({
             {sharedProjects.length > 0 ? (
               <ProjectList
                 projects={sharedProjects}
+                activeProjectId={activeProjectId}
                 onRenameProject={onRenameProject}
                 onDeleteProject={onDeleteProject}
               />

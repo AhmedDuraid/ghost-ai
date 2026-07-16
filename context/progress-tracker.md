@@ -4,7 +4,7 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Current Phase
 
-- Prisma schema and data layer implementation complete
+- Wire editor home to real project data and mutations complete
 
 ## Current Goal
 
@@ -48,6 +48,19 @@ Update this file whenever the current phase, active feature, or implementation s
 - Updated `prisma.config.ts` to load `.env` and `.env.local` for Prisma CLI commands and use Prisma 7 `env()` datasource config.
 - Generated Prisma Client and applied the first migration at `prisma/migrations/20260716161406_init_project_data/migration.sql`.
 - Verified `context/feature-specs/05-prisma.md` with `npx prisma validate`, `npx prisma generate`, `npx prisma migrate dev --name init_project_data`, and `npm run build`.
+- Implemented `context/06-project-apis.md` backend project API routes.
+- Added authenticated `GET /api/projects` and `POST /api/projects` handlers.
+- Added owner-enforced `PATCH /api/projects/[projectId]` and `DELETE /api/projects/[projectId]` handlers with `401`, `403`, and `404` responses.
+- Added `lib/project-api.ts` shared request/auth/project serialization helpers for the project routes.
+- Normalized the exported Prisma singleton type in `lib/prisma.ts` so route handlers can use a consistent client shape across Accelerate and direct Postgres branches.
+- Verified `context/06-project-apis.md` with `npm run build`.
+- Implemented `context/feature-specs/07-wire-editor-home.md`.
+- Added `lib/project-data.ts` to fetch owned and shared editor projects server-side and validate workspace access.
+- Added `hooks/use-project-actions.ts` to manage create, rename, and delete dialogs with real API mutations.
+- Wired `app/editor/page.tsx` to load project data server-side and pass it into the editor layout.
+- Added `app/editor/[projectId]/page.tsx` so project creation and sidebar navigation can open a real workspace route.
+- Updated the editor sidebar and dialogs to use real project data, room ID previews, rename prefills, and active-workspace delete redirects.
+- Verified `context/feature-specs/07-wire-editor-home.md` with `npm run build`.
 
 ## In Progress
 
@@ -68,6 +81,12 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Session Notes
 
+- Completed implementation of `context/feature-specs/07-wire-editor-home.md`.
+- The first sandboxed `npm run build` failed because `next/font` could not fetch Google Fonts; rerunning `npm run build` with approved network access passed.
+- Started implementation of `context/feature-specs/07-wire-editor-home.md`.
+- Started implementation of `context/06-project-apis.md`.
+- Completed implementation of `context/06-project-apis.md`.
+- Initial sandboxed `npm run build` failed because `next/font` could not reach Google Fonts; rerunning `npm run build` with approved network access passed.
 - Started implementation of `context/feature-specs/04-project-dialogs.md`.
 - Completed implementation of `context/feature-specs/01-design-system.md`.
 - Initial sandboxed build failed because `next/font` could not fetch Google Fonts; rerunning `npm run build` with approved network access passed.
