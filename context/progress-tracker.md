@@ -112,6 +112,16 @@ Update this file whenever the current phase, active feature, or implementation s
   - Completed implementation of `context/feature-specs/09-share-dialog.md`.
   - Initial sandboxed `npm run build` failed because `next/font` could not fetch Google Fonts; rerunning `npm run build` with approved network access passed.
   - Verified `context/feature-specs/09-share-dialog.md` with `npm run build`.
+- Implementing task 10 - Liveblocks setup
+  - Implemented `context/feature-specs/10-liveblocks-setup.md`.
+  - Added `liveblocks.config.ts` with typed Presence and UserMeta definitions for cursor state, thinking state, and authenticated user metadata.
+  - Added `lib/liveblocks.ts` with a cached Liveblocks node client getter and deterministic cursor-color mapping from a fixed palette.
+  - Added authenticated `POST /api/liveblocks-auth` with Clerk auth, project membership verification, room provisioning, and user session metadata issuance.
+  - Installed the missing `@liveblocks/node` dependency required by the server auth route.
+  - Updated the Liveblocks client initialization to be lazy so the build does not require `LIVEBLOCKS_SECRET_KEY` at module evaluation time.
+  - Started implementation of `context/feature-specs/10-liveblocks-setup.md`.
+  - Completed implementation of `context/feature-specs/10-liveblocks-setup.md`.
+  - Verified `context/feature-specs/10-liveblocks-setup.md` with `npm run build`.
 
 ## In Progress
 
@@ -176,6 +186,14 @@ Update this file whenever the current phase, active feature, or implementation s
   - Started implementation of `context/feature-specs/09-share-dialog.md`.
   - Completed implementation of `context/feature-specs/09-share-dialog.md`.
   - Initial sandboxed `npm run build` failed because `next/font` could not fetch Google Fonts; rerunning `npm run build` with approved network access passed.
+- Implementing task 10 - Liveblocks setup
+  - Started implementation of `context/feature-specs/10-liveblocks-setup.md`.
+  - Added `liveblocks.config.ts`, `lib/liveblocks.ts`, and `app/api/liveblocks-auth/route.ts`.
+  - Installed `@liveblocks/node` after the first build failed on the missing module import.
+  - Adjusted the Liveblocks `identifyUser` call to match the installed SDK signature.
+  - Switched the Liveblocks client to lazy initialization after the build surfaced a module-evaluation requirement for `LIVEBLOCKS_SECRET_KEY`.
+  - Completed implementation of `context/feature-specs/10-liveblocks-setup.md`.
+  - Verified the feature with `npm run build`.
 - Implementing local font migration - switched app fonts to local assets
   - Added local Geist Sans and Geist Mono font assets under `app/fonts/`.
   - Replaced `next/font/google` with `next/font/local` in `app/layout.tsx`.
