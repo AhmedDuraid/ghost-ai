@@ -119,7 +119,7 @@ export function ProjectSidebar({
         tabIndex={isOpen ? 0 : -1}
         onClick={onClose}
         className={cn(
-          "fixed inset-0 z-30 bg-base/70 backdrop-blur-xs transition-opacity duration-200 md:hidden",
+          "fixed inset-0 z-30 bg-base/70 backdrop-blur-xs transition-opacity duration-200 md:bg-transparent md:backdrop-blur-none",
           isOpen ? "opacity-100" : "pointer-events-none opacity-0"
         )}
       />
