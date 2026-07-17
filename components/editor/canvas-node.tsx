@@ -16,6 +16,7 @@ import {
 } from "react";
 
 import {
+  DEFAULT_NODE_COLOR,
   NODE_COLORS,
   MIN_CANVAS_NODE_HEIGHT,
   MIN_CANVAS_NODE_WIDTH,
@@ -140,16 +141,18 @@ export function CanvasNodeRenderer({
   selected,
 }: NodeProps<CanvasNode>) {
   const { updateNodeData } = useReactFlow<CanvasNode>();
+  const label = typeof data.label === "string" ? data.label : "";
+  const color =
+    data.color &&
+    typeof data.color.fill === "string" &&
+    typeof data.color.text === "string"
+      ? data.color
+      : DEFAULT_NODE_COLOR;
+  const shape = data.shape ?? "rectangle";
   const [isEditing, setIsEditing] = useState(false);
-  const [draftLabel, setDraftLabel] = useState(data.label);
+  const [draftLabel, setDraftLabel] = useState(label);
   const [hoveredColorFill, setHoveredColorFill] = useState<string | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
-
-  useEffect(() => {
-    if (!isEditing) {
-      setDraftLabel(data.label);
-    }
-  }, [data.label, isEditing]);
 
   useEffect(() => {
     if (!isEditing) {
@@ -178,7 +181,7 @@ export function CanvasNodeRenderer({
   }, [draftLabel, isEditing]);
 
   const openEditing = () => {
-    setDraftLabel(data.label);
+    setDraftLabel(label);
     setIsEditing(true);
   };
 
@@ -208,7 +211,7 @@ export function CanvasNodeRenderer({
   return (
     <div
       className="group relative flex h-full w-full items-center justify-center px-4 py-3 text-center shadow-lg"
-      style={{ color: data.color.text }}
+      style={{ color: color.text }}
     >
       {selected ? (
         <div
@@ -217,35 +220,35 @@ export function CanvasNodeRenderer({
           onClick={(event) => event.stopPropagation()}
           onDoubleClick={(event) => event.stopPropagation()}
         >
-          {NODE_COLORS.map((color) => {
+          {NODE_COLORS.map((option) => {
             const isActive =
-              data.color.fill === color.fill && data.color.text === color.text;
-            const isHovered = hoveredColorFill === color.fill;
+              color.fill === option.fill && color.text === option.text;
+            const isHovered = hoveredColorFill === option.fill;
 
             return (
               <button
-                key={`${color.fill}-${color.text}`}
+                key={`${option.fill}-${option.text}`}
                 type="button"
-                aria-label={`Set node color ${color.fill}`}
+                aria-label={`Set node color ${option.fill}`}
                 aria-pressed={isActive}
                 onClick={(event) => {
                   event.stopPropagation();
-                  handleColorSelect(color);
+                  handleColorSelect(option);
                 }}
                 onPointerDown={(event) => event.stopPropagation()}
-                onMouseEnter={() => setHoveredColorFill(color.fill)}
+                onMouseEnter={() => setHoveredColorFill(option.fill)}
                 onMouseLeave={() =>
                   setHoveredColorFill((current) =>
-                    current === color.fill ? null : current,
+                    current === option.fill ? null : current,
                   )
                 }
                 className="h-5 w-5 rounded-full border-2 transition duration-150 ease-out hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-copy-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
                 style={{
-                  backgroundColor: color.fill,
-                  borderColor: isActive ? color.text : "var(--border-default)",
+                  backgroundColor: option.fill,
+                  borderColor: isActive ? option.text : "var(--border-default)",
                   boxShadow:
                     isActive || isHovered
-                      ? `0 0 0 1px ${color.text}, 0 0 12px -4px ${color.text}`
+                      ? `0 0 0 1px ${option.text}, 0 0 12px -4px ${option.text}`
                       : "none",
                 }}
               >
@@ -262,17 +265,13 @@ export function CanvasNodeRenderer({
         isVisible={selected}
         minWidth={MIN_CANVAS_NODE_WIDTH}
         minHeight={MIN_CANVAS_NODE_HEIGHT}
-        keepAspectRatio={data.shape === "circle"}
+        keepAspectRatio={shape === "circle"}
         color="var(--border-subtle)"
         handleClassName={RESIZER_HANDLE_CLASS_NAME}
         lineClassName={RESIZER_LINE_CLASS_NAME}
       />
 
-      <CanvasShapeVisual
-        color={data.color}
-        shape={data.shape}
-        selected={selected}
-      />
+      <CanvasShapeVisual color={color} shape={shape} selected={selected} />
 
       <Handle
         type="target"
@@ -329,10 +328,10 @@ export function CanvasNodeRenderer({
           >
             <span
               className={
-                data.label.trim().length > 0 ? "break-words" : "text-copy-muted"
+                label.trim().length > 0 ? "break-words" : "text-copy-muted"
               }
             >
-              {data.label.trim() || "Untitled node"}
+              {label.trim() || "Untitled node"}
             </span>
           </button>
         )}

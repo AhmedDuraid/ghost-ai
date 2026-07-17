@@ -8,10 +8,15 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Current Goal
 
-- Implementing task 15 - add the floating node color toolbar
+- No active implementation task.
 
 ## Completed
 
+- Implementing task 09 - harden canvas node renderer against legacy canvas data
+  - Updated `components/editor/canvas-node.tsx` to safely normalize missing `label`, `color`, and `shape` values before rendering.
+  - Prevented workspace canvas crashes for older or partial node records that predate the newer shape and color fields.
+  - Refined the renderer hardening to avoid effect-based draft-label state synchronization that triggered React cascading render warnings.
+  - Verified the renderer hardening with `npm run build`.
 - Implementing task 15 - node color toolbar
   - Implemented `context/feature-specs/15-node-color-toolbar.md`.
   - Added a floating color toolbar above selected canvas nodes using the predefined `NODE_COLORS` background and text pairs.
@@ -247,6 +252,10 @@ Update this file whenever the current phase, active feature, or implementation s
   - Started implementation of `context/feature-specs/15-node-color-toolbar.md`.
   - Added a floating selected-node color toolbar that applies predefined fill and text color pairs directly in the collaborative canvas state.
   - Verified the feature with `npm run build`.
+- Implementing task 09 - harden canvas node renderer against legacy canvas data
+  - Normalized legacy canvas node `label`, `color`, and `shape` values inside `components/editor/canvas-node.tsx` so older room data can still render safely.
+  - Removed the follow-up `useEffect` label sync after it triggered a React cascading render warning, while preserving the legacy-data fallback behavior.
+  - Verified the hardening pass with `npm run build`.
 - Implementing local font migration - switched app fonts to local assets
   - Added local Geist Sans and Geist Mono font assets under `app/fonts/`.
   - Replaced `next/font/google` with `next/font/local` in `app/layout.tsx`.
