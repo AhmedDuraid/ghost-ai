@@ -16,6 +16,7 @@ import {
 } from "react";
 
 import {
+  DEFAULT_NODE_COLOR,
   NODE_COLORS,
   MIN_CANVAS_NODE_HEIGHT,
   MIN_CANVAS_NODE_WIDTH,
@@ -24,7 +25,7 @@ import {
 } from "@/types/canvas";
 
 const HANDLE_CLASS_NAME =
-  "!h-3 !w-3 !border-2 !border-copy-primary !bg-copy-primary opacity-0 transition-opacity duration-150 group-hover:opacity-100";
+  "!h-3 !w-3 !border-2 !border-border-default !bg-copy-primary opacity-0 transition-opacity duration-150 group-hover:opacity-100";
 const RESIZER_HANDLE_CLASS_NAME =
   "!h-3 !w-3 !rounded-full !border !border-surface-border !bg-elevated !shadow-sm";
 const RESIZER_LINE_CLASS_NAME = "!border-border-subtle";
@@ -41,6 +42,7 @@ export function CanvasShapeVisual({
   selected = false,
 }: CanvasShapeVisualProps) {
   const stroke = selected ? "var(--text-primary)" : "var(--border-default)";
+  const shapeShadow = "0 10px 15px -3px rgba(0, 0, 0, 0.35)";
   const sharedShapeProps = {
     fill: color.fill,
     stroke,
@@ -57,6 +59,7 @@ export function CanvasShapeVisual({
           style={{
             backgroundColor: color.fill,
             borderColor: stroke,
+            boxShadow: shapeShadow,
           }}
         />
       );
@@ -68,6 +71,7 @@ export function CanvasShapeVisual({
           style={{
             backgroundColor: color.fill,
             borderColor: stroke,
+            boxShadow: shapeShadow,
           }}
         />
       );
@@ -79,6 +83,7 @@ export function CanvasShapeVisual({
           style={{
             backgroundColor: color.fill,
             borderColor: stroke,
+            boxShadow: shapeShadow,
           }}
         />
       );
@@ -89,6 +94,7 @@ export function CanvasShapeVisual({
           viewBox="0 0 100 100"
           className="absolute inset-0 h-full w-full"
           preserveAspectRatio="none"
+          style={{ filter: `drop-shadow(${shapeShadow})` }}
         >
           <polygon points="50,2 98,50 50,98 2,50" {...sharedShapeProps} />
         </svg>
@@ -100,6 +106,7 @@ export function CanvasShapeVisual({
           viewBox="0 0 100 100"
           className="absolute inset-0 h-full w-full"
           preserveAspectRatio="none"
+          style={{ filter: `drop-shadow(${shapeShadow})` }}
         >
           <path
             d="M18 20 C18 12, 82 12, 82 20 L82 76 C82 84, 18 84, 18 76 Z"
@@ -122,6 +129,7 @@ export function CanvasShapeVisual({
           viewBox="0 0 100 100"
           className="absolute inset-0 h-full w-full"
           preserveAspectRatio="none"
+          style={{ filter: `drop-shadow(${shapeShadow})` }}
         >
           <polygon
             points="24,6 76,6 98,50 76,94 24,94 2,50"
@@ -140,16 +148,18 @@ export function CanvasNodeRenderer({
   selected,
 }: NodeProps<CanvasNode>) {
   const { updateNodeData } = useReactFlow<CanvasNode>();
+  const label = typeof data.label === "string" ? data.label : "";
+  const color =
+    data.color &&
+    typeof data.color.fill === "string" &&
+    typeof data.color.text === "string"
+      ? data.color
+      : DEFAULT_NODE_COLOR;
+  const shape = data.shape ?? "rectangle";
   const [isEditing, setIsEditing] = useState(false);
-  const [draftLabel, setDraftLabel] = useState(data.label);
+  const [draftLabel, setDraftLabel] = useState(label);
   const [hoveredColorFill, setHoveredColorFill] = useState<string | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
-
-  useEffect(() => {
-    if (!isEditing) {
-      setDraftLabel(data.label);
-    }
-  }, [data.label, isEditing]);
 
   useEffect(() => {
     if (!isEditing) {
@@ -178,7 +188,7 @@ export function CanvasNodeRenderer({
   }, [draftLabel, isEditing]);
 
   const openEditing = () => {
-    setDraftLabel(data.label);
+    setDraftLabel(label);
     setIsEditing(true);
   };
 
@@ -205,10 +215,17 @@ export function CanvasNodeRenderer({
     updateNodeData(id, { color });
   };
 
+  const handlePositions = [
+    { side: "top", position: Position.Top },
+    { side: "right", position: Position.Right },
+    { side: "bottom", position: Position.Bottom },
+    { side: "left", position: Position.Left },
+  ] as const;
+
   return (
     <div
-      className="group relative flex h-full w-full items-center justify-center px-4 py-3 text-center shadow-lg"
-      style={{ color: data.color.text }}
+      className="group relative flex h-full w-full items-center justify-center px-4 py-3 text-center"
+      style={{ color: color.text }}
     >
       {selected ? (
         <div
@@ -217,35 +234,35 @@ export function CanvasNodeRenderer({
           onClick={(event) => event.stopPropagation()}
           onDoubleClick={(event) => event.stopPropagation()}
         >
-          {NODE_COLORS.map((color) => {
+          {NODE_COLORS.map((option) => {
             const isActive =
-              data.color.fill === color.fill && data.color.text === color.text;
-            const isHovered = hoveredColorFill === color.fill;
+              color.fill === option.fill && color.text === option.text;
+            const isHovered = hoveredColorFill === option.fill;
 
             return (
               <button
-                key={`${color.fill}-${color.text}`}
+                key={`${option.fill}-${option.text}`}
                 type="button"
-                aria-label={`Set node color ${color.fill}`}
+                aria-label={`Set node color ${option.fill}`}
                 aria-pressed={isActive}
                 onClick={(event) => {
                   event.stopPropagation();
-                  handleColorSelect(color);
+                  handleColorSelect(option);
                 }}
                 onPointerDown={(event) => event.stopPropagation()}
-                onMouseEnter={() => setHoveredColorFill(color.fill)}
+                onMouseEnter={() => setHoveredColorFill(option.fill)}
                 onMouseLeave={() =>
                   setHoveredColorFill((current) =>
-                    current === color.fill ? null : current,
+                    current === option.fill ? null : current,
                   )
                 }
                 className="h-5 w-5 rounded-full border-2 transition duration-150 ease-out hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-copy-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
                 style={{
-                  backgroundColor: color.fill,
-                  borderColor: isActive ? color.text : "var(--border-default)",
+                  backgroundColor: option.fill,
+                  borderColor: isActive ? option.text : "var(--border-default)",
                   boxShadow:
                     isActive || isHovered
-                      ? `0 0 0 1px ${color.text}, 0 0 12px -4px ${color.text}`
+                      ? `0 0 0 1px ${option.text}, 0 0 12px -4px ${option.text}`
                       : "none",
                 }}
               >
@@ -262,38 +279,32 @@ export function CanvasNodeRenderer({
         isVisible={selected}
         minWidth={MIN_CANVAS_NODE_WIDTH}
         minHeight={MIN_CANVAS_NODE_HEIGHT}
-        keepAspectRatio={data.shape === "circle"}
+        keepAspectRatio={shape === "circle"}
         color="var(--border-subtle)"
         handleClassName={RESIZER_HANDLE_CLASS_NAME}
         lineClassName={RESIZER_LINE_CLASS_NAME}
       />
 
-      <CanvasShapeVisual
-        color={data.color}
-        shape={data.shape}
-        selected={selected}
-      />
+      <CanvasShapeVisual color={color} shape={shape} selected={selected} />
 
-      <Handle
-        type="target"
-        position={Position.Top}
-        className={HANDLE_CLASS_NAME}
-      />
-      <Handle
-        type="target"
-        position={Position.Left}
-        className={HANDLE_CLASS_NAME}
-      />
-      <Handle
-        type="source"
-        position={Position.Right}
-        className={HANDLE_CLASS_NAME}
-      />
-      <Handle
-        type="source"
-        position={Position.Bottom}
-        className={HANDLE_CLASS_NAME}
-      />
+      {handlePositions.map(({ side, position }) => (
+        <Handle
+          key={`${side}-target`}
+          id={`${side}-target`}
+          type="target"
+          position={position}
+          className={HANDLE_CLASS_NAME}
+        />
+      ))}
+      {handlePositions.map(({ side, position }) => (
+        <Handle
+          key={`${side}-source`}
+          id={`${side}-source`}
+          type="source"
+          position={position}
+          className={HANDLE_CLASS_NAME}
+        />
+      ))}
 
       <div className="absolute inset-0 z-10 flex items-center justify-center px-5 py-4">
         {isEditing ? (
@@ -329,10 +340,10 @@ export function CanvasNodeRenderer({
           >
             <span
               className={
-                data.label.trim().length > 0 ? "break-words" : "text-copy-muted"
+                label.trim().length > 0 ? "break-words" : "text-copy-muted"
               }
             >
-              {data.label.trim() || "Untitled node"}
+              {label.trim() || "Untitled node"}
             </span>
           </button>
         )}

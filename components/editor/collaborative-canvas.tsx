@@ -4,7 +4,11 @@ import {
   ClientSideSuspense,
   LiveblocksProvider,
   RoomProvider,
+  useCanRedo,
+  useCanUndo,
   useErrorListener,
+  useRedo,
+  useUndo,
 } from "@liveblocks/react";
 import { LiveMap, LiveObject } from "@liveblocks/client";
 import { useLiveblocksFlow } from "@liveblocks/react-flow";
@@ -12,17 +16,19 @@ import {
   Background,
   BackgroundVariant,
   ConnectionMode,
+  Panel,
   MarkerType,
   MiniMap,
   ReactFlow,
   ReactFlowProvider,
-  SmoothStepEdge,
   useReactFlow,
-  type EdgeProps,
   type EdgeTypes,
+  type Edge,
   type NodeAddChange,
+  type Node,
   type NodeTypes,
 } from "@xyflow/react";
+import { Minus, Plus, Redo2, ScanSearch, Trash2, Undo2 } from "lucide-react";
 import {
   type DragEvent,
   type ReactNode,
@@ -31,6 +37,7 @@ import {
   useState,
 } from "react";
 
+import { CanvasEdgeRenderer } from "@/components/editor/canvas-edge";
 import {
   CanvasNodeRenderer,
   CanvasShapeVisual,
@@ -41,6 +48,13 @@ import {
   getCanvasShapePayload,
 } from "@/components/editor/canvas-shape-toolbar";
 import {
+  CANVAS_TEMPLATES,
+  type CanvasTemplate,
+} from "@/components/editor/starter-templates";
+import { StarterTemplatesModal } from "@/components/editor/starter-templates-modal";
+import { Button } from "@/components/ui/button";
+import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
+import {
   CANVAS_EDGE_TYPE,
   CANVAS_NODE_TYPE,
   DEFAULT_NODE_COLOR,
@@ -50,20 +64,14 @@ import {
 
 import "@xyflow/react/dist/style.css";
 
-function CanvasEdgeRenderer(props: EdgeProps<CanvasEdge>) {
-  return <SmoothStepEdge {...props} />;
-}
-
 const NODE_TYPES: NodeTypes = {
   [CANVAS_NODE_TYPE]: CanvasNodeRenderer,
 };
 
-const EDGE_TYPES: EdgeTypes = {
-  [CANVAS_EDGE_TYPE]: CanvasEdgeRenderer,
-};
-
 interface CollaborativeCanvasProps {
   projectId: string;
+  isStarterTemplatesOpen: boolean;
+  onStarterTemplatesOpenChange: (open: boolean) => void;
 }
 
 interface ShapeDragPreviewState extends CanvasShapeDragPayload {
@@ -139,6 +147,17 @@ function createCanvasNodeId() {
   return `node-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
+function createCanvasEdgeId() {
+  if (
+    typeof globalThis.crypto !== "undefined" &&
+    typeof globalThis.crypto.randomUUID === "function"
+  ) {
+    return globalThis.crypto.randomUUID();
+  }
+
+  return `edge-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
 function CanvasShapeDragPreview({
   preview,
 }: {
@@ -164,7 +183,108 @@ function CanvasShapeDragPreview({
   );
 }
 
-function CollaborativeCanvasFlow() {
+function CanvasControlBar({
+  canUndo,
+  canRedo,
+  canDelete,
+  onUndo,
+  onRedo,
+  onDelete,
+  onZoomIn,
+  onZoomOut,
+  onFitView,
+}: {
+  canUndo: boolean;
+  canRedo: boolean;
+  canDelete: boolean;
+  onUndo: () => void;
+  onRedo: () => void;
+  onDelete: () => void;
+  onZoomIn: () => void;
+  onZoomOut: () => void;
+  onFitView: () => void;
+}) {
+  return (
+    <Panel position="bottom-left">
+      <div className="mb-24 ml-4 flex items-center gap-1 rounded-full border border-surface-border bg-sidebar px-2 py-2 shadow-2xl backdrop-blur-md">
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          aria-label="Zoom out"
+          onClick={onZoomOut}
+          className="rounded-full text-copy-secondary hover:bg-subtle hover:text-copy-primary"
+        >
+          <Minus className="h-4 w-4" />
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          aria-label="Fit view"
+          onClick={onFitView}
+          className="rounded-full text-copy-secondary hover:bg-subtle hover:text-copy-primary"
+        >
+          <ScanSearch className="h-4 w-4" />
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          aria-label="Zoom in"
+          onClick={onZoomIn}
+          className="rounded-full text-copy-secondary hover:bg-subtle hover:text-copy-primary"
+        >
+          <Plus className="h-4 w-4" />
+        </Button>
+
+        <div className="mx-1 h-6 w-px bg-border-default" />
+
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          aria-label="Undo"
+          onClick={onUndo}
+          disabled={!canUndo}
+          className="rounded-full text-copy-secondary hover:bg-subtle hover:text-copy-primary disabled:text-copy-faint"
+        >
+          <Undo2 className="h-4 w-4" />
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          aria-label="Redo"
+          onClick={onRedo}
+          disabled={!canRedo}
+          className="rounded-full text-copy-secondary hover:bg-subtle hover:text-copy-primary disabled:text-copy-faint"
+        >
+          <Redo2 className="h-4 w-4" />
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          aria-label="Delete selected nodes and edges"
+          onClick={onDelete}
+          disabled={!canDelete}
+          className="rounded-full text-copy-secondary hover:bg-state-error/10 hover:text-state-error disabled:text-copy-faint"
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      </div>
+    </Panel>
+  );
+}
+
+function CollaborativeCanvasFlow({
+  isStarterTemplatesOpen,
+  onStarterTemplatesOpenChange,
+}: Pick<
+  CollaborativeCanvasProps,
+  "isStarterTemplatesOpen" | "onStarterTemplatesOpenChange"
+>) {
   const { nodes, edges, onNodesChange, onEdgesChange, onConnect, onDelete } =
     useLiveblocksFlow<CanvasNode, CanvasEdge>({
       suspense: true,
@@ -176,9 +296,50 @@ function CollaborativeCanvasFlow() {
       },
     });
   const reactFlow = useReactFlow<CanvasNode, CanvasEdge>();
+  const undo = useUndo();
+  const redo = useRedo();
+  const canUndo = useCanUndo();
+  const canRedo = useCanRedo();
   const [dragPreview, setDragPreview] = useState<ShapeDragPreviewState | null>(
     null,
   );
+  const hasSelection = nodes.some((node) => node.selected) || edges.some((edge) => edge.selected);
+
+  const deleteSelectedElements = useCallback(() => {
+    const selectedNodes = reactFlow
+      .getNodes()
+      .filter((node) => node.selected);
+    const selectedEdges = reactFlow
+      .getEdges()
+      .filter((edge) => edge.selected);
+
+    if (selectedNodes.length === 0 && selectedEdges.length === 0) {
+      return;
+    }
+
+    void reactFlow.deleteElements({
+      nodes: selectedNodes as Node[],
+      edges: selectedEdges as Edge[],
+    });
+  }, [reactFlow]);
+
+  const edgeTypes: EdgeTypes = {
+    [CANVAS_EDGE_TYPE]: (props) => (
+      <CanvasEdgeRenderer
+        {...props}
+        onLabelChange={(edgeId, label) => {
+          reactFlow.updateEdgeData(edgeId, { label });
+        }}
+      />
+    ),
+  };
+
+  useKeyboardShortcuts({
+    reactFlow,
+    onUndo: undo,
+    onRedo: redo,
+    onDeleteSelection: deleteSelectedElements,
+  });
 
   useEffect(() => {
     const handleWindowDragOver = (event: globalThis.DragEvent) => {
@@ -274,6 +435,45 @@ function CollaborativeCanvasFlow() {
     [nodes.length, onNodesChange, reactFlow],
   );
 
+  const handleConnect = useCallback(
+    (connection: Parameters<typeof onConnect>[0]) => {
+      if (!connection.source || !connection.target) {
+        return;
+      }
+
+      reactFlow.addEdges({
+        id: createCanvasEdgeId(),
+        source: connection.source,
+        target: connection.target,
+        sourceHandle: connection.sourceHandle,
+        targetHandle: connection.targetHandle,
+        type: CANVAS_EDGE_TYPE,
+        markerEnd: {
+          type: MarkerType.ArrowClosed,
+        },
+        data: {
+          label: "",
+        },
+      });
+    },
+    [reactFlow],
+  );
+
+  const handleImportTemplate = useCallback(
+    (template: CanvasTemplate) => {
+      reactFlow.setNodes(template.nodes);
+      reactFlow.setEdges(template.edges);
+
+      requestAnimationFrame(() => {
+        void reactFlow.fitView({
+          duration: 220,
+          padding: 0.2,
+        });
+      });
+    },
+    [reactFlow],
+  );
+
   return (
     <div
       className="relative h-full w-full"
@@ -285,10 +485,10 @@ function CollaborativeCanvasFlow() {
         edges={edges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
+        onConnect={handleConnect}
         onDelete={onDelete}
         nodeTypes={NODE_TYPES}
-        edgeTypes={EDGE_TYPES}
+        edgeTypes={edgeTypes}
         connectionMode={ConnectionMode.Loose}
         fitView
         minZoom={0.3}
@@ -320,17 +520,47 @@ function CollaborativeCanvasFlow() {
           size={1.2}
           color="var(--border-default)"
         />
+        <CanvasControlBar
+          canUndo={canUndo}
+          canRedo={canRedo}
+          canDelete={hasSelection}
+          onUndo={undo}
+          onRedo={redo}
+          onDelete={deleteSelectedElements}
+          onZoomIn={() => {
+            void reactFlow.zoomIn({ duration: 180 });
+          }}
+          onZoomOut={() => {
+            void reactFlow.zoomOut({ duration: 180 });
+          }}
+          onFitView={() => {
+            void reactFlow.fitView({
+              duration: 220,
+              padding: 0.2,
+            });
+          }}
+        />
       </ReactFlow>
       <CanvasShapeToolbar
         onShapeDragStart={handleShapeDragStart}
         onShapeDragEnd={handleShapeDragEnd}
+      />
+      <StarterTemplatesModal
+        isOpen={isStarterTemplatesOpen}
+        onOpenChange={onStarterTemplatesOpenChange}
+        templates={CANVAS_TEMPLATES}
+        onImport={handleImportTemplate}
       />
       {dragPreview ? <CanvasShapeDragPreview preview={dragPreview} /> : null}
     </div>
   );
 }
 
-function CollaborativeCanvasRoom({ projectId }: CollaborativeCanvasProps) {
+function CollaborativeCanvasRoom({
+  projectId,
+  isStarterTemplatesOpen,
+  onStarterTemplatesOpenChange,
+}: CollaborativeCanvasProps) {
   return (
     <RoomProvider
       id={projectId}
@@ -349,7 +579,10 @@ function CollaborativeCanvasRoom({ projectId }: CollaborativeCanvasProps) {
         <ClientSideSuspense fallback={<CanvasLoadingState />}>
           {() => (
             <ReactFlowProvider>
-              <CollaborativeCanvasFlow />
+              <CollaborativeCanvasFlow
+                isStarterTemplatesOpen={isStarterTemplatesOpen}
+                onStarterTemplatesOpenChange={onStarterTemplatesOpenChange}
+              />
             </ReactFlowProvider>
           )}
         </ClientSideSuspense>
@@ -358,7 +591,11 @@ function CollaborativeCanvasRoom({ projectId }: CollaborativeCanvasProps) {
   );
 }
 
-export function CollaborativeCanvas({ projectId }: CollaborativeCanvasProps) {
+export function CollaborativeCanvas({
+  projectId,
+  isStarterTemplatesOpen,
+  onStarterTemplatesOpenChange,
+}: CollaborativeCanvasProps) {
   const authEndpoint = useCallback(async () => {
     const response = await fetch("/api/liveblocks-auth", {
       method: "POST",
@@ -376,7 +613,11 @@ export function CollaborativeCanvas({ projectId }: CollaborativeCanvasProps) {
   return (
     <div className="absolute inset-0">
       <LiveblocksProvider authEndpoint={authEndpoint}>
-        <CollaborativeCanvasRoom projectId={projectId} />
+        <CollaborativeCanvasRoom
+          projectId={projectId}
+          isStarterTemplatesOpen={isStarterTemplatesOpen}
+          onStarterTemplatesOpenChange={onStarterTemplatesOpenChange}
+        />
       </LiveblocksProvider>
     </div>
   );

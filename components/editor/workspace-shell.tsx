@@ -1,7 +1,13 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { Bot, PanelLeftClose, PanelLeftOpen, Share2 } from "lucide-react"
+import {
+  Bot,
+  LayoutTemplate,
+  PanelLeftClose,
+  PanelLeftOpen,
+  Share2,
+} from "lucide-react"
 
 import { ProjectDialogs } from "@/components/editor/project-dialogs"
 import { ProjectSidebar } from "@/components/editor/project-sidebar"
@@ -32,6 +38,7 @@ export function WorkspaceShell({
 }: WorkspaceShellProps) {
   const [isProjectSidebarOpen, setIsProjectSidebarOpen] = useState(true)
   const [isAiSidebarOpen, setIsAiSidebarOpen] = useState(true)
+  const [isStarterTemplatesOpen, setIsStarterTemplatesOpen] = useState(false)
   const aiSidebarAutoCloseTimeoutRef = useRef<number | null>(null)
   const projectActions = useProjectActions({ activeProjectId })
   const shareDialog = useShareDialog({
@@ -88,6 +95,15 @@ export function WorkspaceShell({
             type="button"
             variant="outline"
             className="bg-elevated text-copy-primary"
+            onClick={() => setIsStarterTemplatesOpen(true)}
+          >
+            <LayoutTemplate className="h-4 w-4" />
+            Templates
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            className="bg-elevated text-copy-primary"
             onClick={() => shareDialog.handleOpenChange(true)}
           >
             <Share2 className="h-4 w-4" />
@@ -121,7 +137,11 @@ export function WorkspaceShell({
       />
 
       <main className="relative min-h-0 flex-1 bg-base">
-        <CollaborativeCanvas projectId={projectId} />
+        <CollaborativeCanvas
+          projectId={projectId}
+          isStarterTemplatesOpen={isStarterTemplatesOpen}
+          onStarterTemplatesOpenChange={setIsStarterTemplatesOpen}
+        />
 
         <aside
           className={cn(

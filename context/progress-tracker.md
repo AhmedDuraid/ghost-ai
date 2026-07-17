@@ -8,10 +8,34 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Current Goal
 
-- Implementing task 15 - add the floating node color toolbar
+- Implementing task 20 - add canvas node deletion through keyboard and control bar actions.
 
 ## Completed
 
+- Implementing task 20 - add canvas node deletion through keyboard and control bar actions
+  - Added keyboard `Delete` support in `hooks/useKeyboardShortcuts.ts` while preserving the editable-field guard so inline label editing is unaffected.
+  - Added a delete action to the bottom-left canvas control bar beside the undo and redo controls.
+  - Wired both delete triggers through the shared React Flow selected-element deletion path so node and edge removal stays consistent with collaborative canvas history.
+- Implementing task 09 - move canvas node shadows into shape visuals for shape-following shadows
+  - Verified the current `components/editor/canvas-node.tsx` issue was still valid because the node root container still applied `shadow-lg`, which produced rectangular shadows for non-rectangular shapes.
+  - Removed the shared root shadow and moved the equivalent shadow treatment into `CanvasShapeVisual`.
+  - Applied shape-following shadows to SVG-rendered circle, diamond, cylinder, and hexagon visuals by using per-shape shadow styling instead of the rectangular node wrapper shadow.
+  - Kept the fix localized to the canvas node renderer with no behavior changes outside node visuals.
+- Implementing task 09 - harden canvas node renderer against legacy canvas data
+  - Updated `components/editor/canvas-node.tsx` to safely normalize missing `label`, `color`, and `shape` values before rendering.
+  - Prevented workspace canvas crashes for older or partial node records that predate the newer shape and color fields.
+  - Refined the renderer hardening to avoid effect-based draft-label state synchronization that triggered React cascading render warnings.
+  - Verified the renderer hardening with `npm run build`.
+- Implementing tasks 16-19 - edge behavior, canvas ergonomics, and starter templates
+  - Implemented `context/feature-specs/16-edge-behavior.md`, `17-nodes-color-toolbar.md`, `18-canvas-ergonomics.md.md`, and `19-starter-templates.md`.
+  - Added four-way source and target handles to every node while keeping the subtle hover-revealed handle treatment.
+  - Replaced the default edge rendering with a custom edge that uses right-angle routing, brighter hover and selection states, larger interaction width, and inline collaborative label editing through edge data.
+  - Added a bottom-left canvas control bar for zoom in, zoom out, fit view, undo, and redo.
+  - Added `hooks/useKeyboardShortcuts.ts` to support zoom and Liveblocks undo/redo shortcuts while ignoring editable fields.
+  - Added a starter template library with predefined microservices, CI/CD, and event-driven diagrams plus lightweight card previews in an import modal.
+  - Added a workspace navbar Templates entry point and wired template import to replace the current collaborative canvas and refit the viewport.
+  - Verified the existing node color toolbar remained aligned with task 17 while keeping the predefined shared node color pairs.
+  - Verified `context/feature-specs/16-edge-behavior.md`, `17-nodes-color-toolbar.md`, `18-canvas-ergonomics.md.md`, and `19-starter-templates.md` with `npm run build`.
 - Implementing task 15 - node color toolbar
   - Implemented `context/feature-specs/15-node-color-toolbar.md`.
   - Added a floating color toolbar above selected canvas nodes using the predefined `NODE_COLORS` background and text pairs.
@@ -160,11 +184,11 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## In Progress
 
-- No active implementation task.
+- Implementing task 20 - add canvas node deletion through keyboard and control bar actions
 
 ## Next Up
 
-- Start the next feature unit after task 15.
+- Start the next feature unit after task 19.
 
 ## Open Questions
 
@@ -176,6 +200,12 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Session Notes
 
+- Implementing task 20 - add canvas node deletion through keyboard and control bar actions
+  - Added a shared selected-element delete action to the collaborative canvas flow for both keyboard and control bar use.
+  - Extended the existing keyboard shortcut hook with `Delete` support while keeping shortcuts disabled during text input and inline editing.
+- Implementing task 09 - move canvas node shadows into shape visuals for shape-following shadows
+  - Confirmed the reported shadow issue was still present in `components/editor/canvas-node.tsx`.
+  - Moved the shadow styling from the shared node wrapper into `CanvasShapeVisual` so non-rectangular shapes use shape-following shadows.
 - Implementing task 01 - design system foundation
   - Completed implementation of `context/feature-specs/01-design-system.md`.
   - Initial sandboxed build failed because `next/font` could not fetch Google Fonts; rerunning `npm run build` with approved network access passed.
@@ -247,6 +277,10 @@ Update this file whenever the current phase, active feature, or implementation s
   - Started implementation of `context/feature-specs/15-node-color-toolbar.md`.
   - Added a floating selected-node color toolbar that applies predefined fill and text color pairs directly in the collaborative canvas state.
   - Verified the feature with `npm run build`.
+- Implementing task 09 - harden canvas node renderer against legacy canvas data
+  - Normalized legacy canvas node `label`, `color`, and `shape` values inside `components/editor/canvas-node.tsx` so older room data can still render safely.
+  - Removed the follow-up `useEffect` label sync after it triggered a React cascading render warning, while preserving the legacy-data fallback behavior.
+  - Verified the hardening pass with `npm run build`.
 - Implementing local font migration - switched app fonts to local assets
   - Added local Geist Sans and Geist Mono font assets under `app/fonts/`.
   - Replaced `next/font/google` with `next/font/local` in `app/layout.tsx`.
