@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Bot, PanelLeftClose, PanelLeftOpen, Share2 } from "lucide-react"
 
 import { ProjectDialogs } from "@/components/editor/project-dialogs"
@@ -31,6 +31,7 @@ export function WorkspaceShell({
 }: WorkspaceShellProps) {
   const [isProjectSidebarOpen, setIsProjectSidebarOpen] = useState(true)
   const [isAiSidebarOpen, setIsAiSidebarOpen] = useState(true)
+  const aiSidebarAutoCloseTimeoutRef = useRef<number | null>(null)
   const projectActions = useProjectActions({ activeProjectId })
   const shareDialog = useShareDialog({
     canManageAccess,
@@ -38,13 +39,21 @@ export function WorkspaceShell({
   })
   const SidebarIcon = isProjectSidebarOpen ? PanelLeftClose : PanelLeftOpen
 
+  const clearAiSidebarAutoCloseTimeout = () => {
+    if (aiSidebarAutoCloseTimeoutRef.current !== null) {
+      window.clearTimeout(aiSidebarAutoCloseTimeoutRef.current)
+      aiSidebarAutoCloseTimeoutRef.current = null
+    }
+  }
+
   useEffect(() => {
-    const timeoutId = window.setTimeout(() => {
+    aiSidebarAutoCloseTimeoutRef.current = window.setTimeout(() => {
       setIsAiSidebarOpen(false)
+      aiSidebarAutoCloseTimeoutRef.current = null
     }, 2000)
 
     return () => {
-      window.clearTimeout(timeoutId)
+      clearAiSidebarAutoCloseTimeout()
     }
   }, [])
 
@@ -87,7 +96,10 @@ export function WorkspaceShell({
             type="button"
             variant="outline"
             aria-pressed={isAiSidebarOpen}
-            onClick={() => setIsAiSidebarOpen((current) => !current)}
+            onClick={() => {
+              clearAiSidebarAutoCloseTimeout()
+              setIsAiSidebarOpen((current) => !current)
+            }}
             className="bg-elevated text-copy-primary"
           >
             <Bot className="h-4 w-4" />

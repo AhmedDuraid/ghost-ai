@@ -77,6 +77,8 @@ Update this file whenever the current phase, active feature, or implementation s
 - Verified the workspace shell interaction update with `npm run build`.
 - Removed the desktop dimming from the project sidebar click-catcher so the editor canvas stays visually clear while the sidebar is open.
 - Verified the sidebar backdrop adjustment with `npm run build`.
+- Fixed the workspace AI sidebar auto-close timer so manual interaction cancels the initial pending timeout while preserving the first-load auto-close behavior.
+- Verified the AI sidebar timeout fix with `npm run build`.
 
 ## In Progress
 
@@ -97,6 +99,7 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Session Notes
 
+- Fixed the verified workspace AI sidebar reopen race by clearing the initial auto-close timeout on manual toggle, then revalidated with `npm run build`.
 - Completed implementation of `context/feature-specs/09-share-dialog.md`.
 - Initial sandboxed `npm run build` failed because `next/font` could not fetch Google Fonts; rerunning `npm run build` with approved network access passed.
 - Started implementation of `context/feature-specs/09-share-dialog.md`.
