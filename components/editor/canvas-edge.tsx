@@ -52,7 +52,6 @@ export function CanvasEdgeRenderer({
 
   useEffect(() => {
     if (!isEditing) {
-      setDraftLabel(label);
       return;
     }
 
@@ -64,7 +63,7 @@ export function CanvasEdgeRenderer({
 
     input.focus();
     input.setSelectionRange(input.value.length, input.value.length);
-  }, [isEditing, label]);
+  }, [isEditing]);
 
   const closeEditing = () => {
     setIsEditing(false);

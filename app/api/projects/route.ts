@@ -13,14 +13,6 @@ interface CreateProjectRequestBody {
   name?: unknown;
 }
 
-interface ListProjectsResponse {
-  projects: ReturnType<typeof serializeProject>[];
-}
-
-interface ProjectResponse {
-  project: ReturnType<typeof serializeProject>;
-}
-
 export async function GET() {
   const authResult = await requireAuthenticatedUser();
 

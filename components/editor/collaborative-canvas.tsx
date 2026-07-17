@@ -22,6 +22,7 @@ import {
   ReactFlow,
   ReactFlowProvider,
   useReactFlow,
+  type Connection,
   type EdgeTypes,
   type Edge,
   type NodeAddChange,
@@ -285,7 +286,7 @@ function CollaborativeCanvasFlow({
   CollaborativeCanvasProps,
   "isStarterTemplatesOpen" | "onStarterTemplatesOpenChange"
 >) {
-  const { nodes, edges, onNodesChange, onEdgesChange, onConnect, onDelete } =
+  const { nodes, edges, onNodesChange, onEdgesChange, onDelete } =
     useLiveblocksFlow<CanvasNode, CanvasEdge>({
       suspense: true,
       nodes: {
@@ -436,7 +437,7 @@ function CollaborativeCanvasFlow({
   );
 
   const handleConnect = useCallback(
-    (connection: Parameters<typeof onConnect>[0]) => {
+    (connection: Connection) => {
       if (!connection.source || !connection.target) {
         return;
       }
