@@ -25,7 +25,7 @@ import {
 } from "@/types/canvas";
 
 const HANDLE_CLASS_NAME =
-  "!h-3 !w-3 !border-2 !border-copy-primary !bg-copy-primary opacity-0 transition-opacity duration-150 group-hover:opacity-100";
+  "!h-3 !w-3 !border-2 !border-border-default !bg-copy-primary opacity-0 transition-opacity duration-150 group-hover:opacity-100";
 const RESIZER_HANDLE_CLASS_NAME =
   "!h-3 !w-3 !rounded-full !border !border-surface-border !bg-elevated !shadow-sm";
 const RESIZER_LINE_CLASS_NAME = "!border-border-subtle";
@@ -42,6 +42,7 @@ export function CanvasShapeVisual({
   selected = false,
 }: CanvasShapeVisualProps) {
   const stroke = selected ? "var(--text-primary)" : "var(--border-default)";
+  const shapeShadow = "0 10px 15px -3px rgba(0, 0, 0, 0.35)";
   const sharedShapeProps = {
     fill: color.fill,
     stroke,
@@ -58,6 +59,7 @@ export function CanvasShapeVisual({
           style={{
             backgroundColor: color.fill,
             borderColor: stroke,
+            boxShadow: shapeShadow,
           }}
         />
       );
@@ -69,6 +71,7 @@ export function CanvasShapeVisual({
           style={{
             backgroundColor: color.fill,
             borderColor: stroke,
+            boxShadow: shapeShadow,
           }}
         />
       );
@@ -80,6 +83,7 @@ export function CanvasShapeVisual({
           style={{
             backgroundColor: color.fill,
             borderColor: stroke,
+            boxShadow: shapeShadow,
           }}
         />
       );
@@ -90,6 +94,7 @@ export function CanvasShapeVisual({
           viewBox="0 0 100 100"
           className="absolute inset-0 h-full w-full"
           preserveAspectRatio="none"
+          style={{ filter: `drop-shadow(${shapeShadow})` }}
         >
           <polygon points="50,2 98,50 50,98 2,50" {...sharedShapeProps} />
         </svg>
@@ -101,6 +106,7 @@ export function CanvasShapeVisual({
           viewBox="0 0 100 100"
           className="absolute inset-0 h-full w-full"
           preserveAspectRatio="none"
+          style={{ filter: `drop-shadow(${shapeShadow})` }}
         >
           <path
             d="M18 20 C18 12, 82 12, 82 20 L82 76 C82 84, 18 84, 18 76 Z"
@@ -123,6 +129,7 @@ export function CanvasShapeVisual({
           viewBox="0 0 100 100"
           className="absolute inset-0 h-full w-full"
           preserveAspectRatio="none"
+          style={{ filter: `drop-shadow(${shapeShadow})` }}
         >
           <polygon
             points="24,6 76,6 98,50 76,94 24,94 2,50"
@@ -208,9 +215,16 @@ export function CanvasNodeRenderer({
     updateNodeData(id, { color });
   };
 
+  const handlePositions = [
+    { side: "top", position: Position.Top },
+    { side: "right", position: Position.Right },
+    { side: "bottom", position: Position.Bottom },
+    { side: "left", position: Position.Left },
+  ] as const;
+
   return (
     <div
-      className="group relative flex h-full w-full items-center justify-center px-4 py-3 text-center shadow-lg"
+      className="group relative flex h-full w-full items-center justify-center px-4 py-3 text-center"
       style={{ color: color.text }}
     >
       {selected ? (
@@ -273,26 +287,24 @@ export function CanvasNodeRenderer({
 
       <CanvasShapeVisual color={color} shape={shape} selected={selected} />
 
-      <Handle
-        type="target"
-        position={Position.Top}
-        className={HANDLE_CLASS_NAME}
-      />
-      <Handle
-        type="target"
-        position={Position.Left}
-        className={HANDLE_CLASS_NAME}
-      />
-      <Handle
-        type="source"
-        position={Position.Right}
-        className={HANDLE_CLASS_NAME}
-      />
-      <Handle
-        type="source"
-        position={Position.Bottom}
-        className={HANDLE_CLASS_NAME}
-      />
+      {handlePositions.map(({ side, position }) => (
+        <Handle
+          key={`${side}-target`}
+          id={`${side}-target`}
+          type="target"
+          position={position}
+          className={HANDLE_CLASS_NAME}
+        />
+      ))}
+      {handlePositions.map(({ side, position }) => (
+        <Handle
+          key={`${side}-source`}
+          id={`${side}-source`}
+          type="source"
+          position={position}
+          className={HANDLE_CLASS_NAME}
+        />
+      ))}
 
       <div className="absolute inset-0 z-10 flex items-center justify-center px-5 py-4">
         {isEditing ? (
