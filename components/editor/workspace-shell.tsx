@@ -6,6 +6,7 @@ import { Bot, PanelLeftClose, PanelLeftOpen, Share2 } from "lucide-react"
 import { ProjectDialogs } from "@/components/editor/project-dialogs"
 import { ProjectSidebar } from "@/components/editor/project-sidebar"
 import { ShareDialog } from "@/components/editor/share-dialog"
+import { CollaborativeCanvas } from "@/components/editor/collaborative-canvas"
 import { Button } from "@/components/ui/button"
 import { useProjectActions } from "@/hooks/use-project-actions"
 import { useShareDialog } from "@/hooks/use-share-dialog"
@@ -120,18 +121,7 @@ export function WorkspaceShell({
       />
 
       <main className="relative min-h-0 flex-1 bg-base">
-        <section className="flex h-full min-h-full items-center justify-center bg-base px-6 py-12 text-center">
-          <div className="max-w-xl">
-            <h1 className="text-2xl font-semibold tracking-normal text-copy-primary md:text-3xl">
-              Canvas workspace placeholder
-            </h1>
-            <p className="mt-3 text-sm leading-6 text-copy-muted md:text-base">
-              The collaborative canvas will mount here in a future feature. This shell
-              already has project access checks, room context, and space reserved for
-              AI tools.
-            </p>
-          </div>
-        </section>
+        <CollaborativeCanvas projectId={projectId} />
 
         <aside
           className={cn(
