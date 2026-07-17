@@ -19,10 +19,6 @@ interface ProjectRouteContext {
   }>;
 }
 
-interface ProjectResponse {
-  project: ReturnType<typeof serializeProject>;
-}
-
 export async function PATCH(
   request: Request,
   context: ProjectRouteContext,

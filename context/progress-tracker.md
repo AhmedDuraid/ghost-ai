@@ -8,10 +8,15 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Current Goal
 
-- Implementing task 20 - add canvas node deletion through keyboard and control bar actions.
+- Implementing final cleanup pass - resolve review issues in hooks, app, and components.
 
 ## Completed
 
+- Implementing final cleanup pass - resolve review issues in hooks, app, and components
+  - Removed the effect-based draft label reset from `components/editor/canvas-edge.tsx` so edge inline editing no longer triggers the React cascading render lint violation.
+  - Removed the unused `onConnect` destructure from `components/editor/collaborative-canvas.tsx` and switched the local connection callback typing to `Connection`.
+  - Removed unused response interface declarations from `app/api/projects/route.ts` and `app/api/projects/[projectId]/route.ts`.
+  - Verified the cleanup pass with `npm run lint -- hooks app components` and `npm run build`.
 - Implementing task 20 - add canvas node deletion through keyboard and control bar actions
   - Added keyboard `Delete` support in `hooks/useKeyboardShortcuts.ts` while preserving the editable-field guard so inline label editing is unaffected.
   - Added a delete action to the bottom-left canvas control bar beside the undo and redo controls.
@@ -184,11 +189,11 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## In Progress
 
-- Implementing task 20 - add canvas node deletion through keyboard and control bar actions
+- None
 
 ## Next Up
 
-- Start the next feature unit after task 19.
+- Start the next feature unit after the verified cleanup pass.
 
 ## Open Questions
 
@@ -200,6 +205,10 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Session Notes
 
+- Implementing final cleanup pass - resolve review issues in hooks, app, and components
+  - Fixed the edge label editor effect so lint no longer reports the React set-state-in-effect violation.
+  - Removed the small unused canvas and API declarations surfaced by the final review.
+  - Revalidated the targeted scope with `npm run lint -- hooks app components` and `npm run build`.
 - Implementing task 20 - add canvas node deletion through keyboard and control bar actions
   - Added a shared selected-element delete action to the collaborative canvas flow for both keyboard and control bar use.
   - Extended the existing keyboard shortcut hook with `Delete` support while keeping shortcuts disabled during text input and inline editing.
