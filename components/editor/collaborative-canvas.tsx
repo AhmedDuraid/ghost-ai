@@ -1,13 +1,13 @@
-"use client"
+"use client";
 
 import {
   ClientSideSuspense,
   LiveblocksProvider,
   RoomProvider,
   useErrorListener,
-} from "@liveblocks/react"
-import { LiveMap, LiveObject } from "@liveblocks/client"
-import { useLiveblocksFlow } from "@liveblocks/react-flow"
+} from "@liveblocks/react";
+import { LiveMap, LiveObject } from "@liveblocks/client";
+import { useLiveblocksFlow } from "@liveblocks/react-flow";
 import {
   Background,
   BackgroundVariant,
@@ -22,38 +22,53 @@ import {
   type EdgeTypes,
   type NodeAddChange,
   type NodeTypes,
-} from "@xyflow/react"
-import { type DragEvent, type ReactNode, useCallback, useRef, useState } from "react"
+} from "@xyflow/react";
+import {
+  type DragEvent,
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 
-import { CanvasNodeRenderer } from "@/components/editor/canvas-node"
+import {
+  CanvasNodeRenderer,
+  CanvasShapeVisual,
+} from "@/components/editor/canvas-node";
 import {
   CanvasShapeToolbar,
+  type CanvasShapeDragPayload,
   getCanvasShapePayload,
-} from "@/components/editor/canvas-shape-toolbar"
+} from "@/components/editor/canvas-shape-toolbar";
 import {
   CANVAS_EDGE_TYPE,
   CANVAS_NODE_TYPE,
   DEFAULT_NODE_COLOR,
   type CanvasEdge,
   type CanvasNode,
-} from "@/types/canvas"
+} from "@/types/canvas";
 
-import "@xyflow/react/dist/style.css"
+import "@xyflow/react/dist/style.css";
 
 function CanvasEdgeRenderer(props: EdgeProps<CanvasEdge>) {
-  return <SmoothStepEdge {...props} />
+  return <SmoothStepEdge {...props} />;
 }
 
 const NODE_TYPES: NodeTypes = {
   [CANVAS_NODE_TYPE]: CanvasNodeRenderer,
-}
+};
 
 const EDGE_TYPES: EdgeTypes = {
   [CANVAS_EDGE_TYPE]: CanvasEdgeRenderer,
-}
+};
 
 interface CollaborativeCanvasProps {
-  projectId: string
+  projectId: string;
+}
+
+interface ShapeDragPreviewState extends CanvasShapeDragPayload {
+  x: number;
+  y: number;
 }
 
 function CanvasLoadingState() {
@@ -66,7 +81,7 @@ function CanvasLoadingState() {
         </p>
       </div>
     </div>
-  )
+  );
 }
 
 function CanvasConnectionError({ message }: { message: string }) {
@@ -79,38 +94,74 @@ function CanvasConnectionError({ message }: { message: string }) {
         <p className="mt-2 text-sm leading-6 text-copy-muted">{message}</p>
       </div>
     </div>
-  )
+  );
 }
 
 function getConnectionErrorMessage(code: number) {
   switch (code) {
     case -1:
-      return "Authentication with the collaboration service failed for this workspace."
+      return "Authentication with the collaboration service failed for this workspace.";
     case 4001:
-      return "You do not have access to join this collaborative room."
+      return "You do not have access to join this collaborative room.";
     case 4005:
-      return "The collaborative room is full right now. Please try again shortly."
+      return "The collaborative room is full right now. Please try again shortly.";
     case 4006:
-      return "The workspace room changed while connecting. Refresh and try again."
+      return "The workspace room changed while connecting. Refresh and try again.";
     default:
-      return "The shared canvas could not connect right now. Please try again."
+      return "The shared canvas could not connect right now. Please try again.";
   }
 }
 
 function LiveblocksConnectionGuard({ children }: { children: ReactNode }) {
-  const [connectionError, setConnectionError] = useState<string | null>(null)
+  const [connectionError, setConnectionError] = useState<string | null>(null);
 
   useErrorListener((error) => {
     if (error.context.type === "ROOM_CONNECTION_ERROR") {
-      setConnectionError(getConnectionErrorMessage(error.context.code))
+      setConnectionError(getConnectionErrorMessage(error.context.code));
     }
-  })
+  });
 
   if (connectionError) {
-    return <CanvasConnectionError message={connectionError} />
+    return <CanvasConnectionError message={connectionError} />;
   }
 
-  return <>{children}</>
+  return <>{children}</>;
+}
+
+function createCanvasNodeId() {
+  if (
+    typeof globalThis.crypto !== "undefined" &&
+    typeof globalThis.crypto.randomUUID === "function"
+  ) {
+    return globalThis.crypto.randomUUID();
+  }
+
+  return `node-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
+function CanvasShapeDragPreview({
+  preview,
+}: {
+  preview: ShapeDragPreviewState;
+}) {
+  return (
+    <div
+      className="pointer-events-none fixed left-0 top-0 z-30 opacity-80"
+      style={{
+        width: preview.width,
+        height: preview.height,
+        transform: `translate(${preview.x - preview.width / 2}px, ${preview.y - preview.height / 2}px)`,
+      }}
+    >
+      <div className="relative h-full w-full">
+        <CanvasShapeVisual
+          color={DEFAULT_NODE_COLOR}
+          shape={preview.shape}
+          selected={true}
+        />
+      </div>
+    </div>
+  );
 }
 
 function CollaborativeCanvasFlow() {
@@ -123,34 +174,77 @@ function CollaborativeCanvasFlow() {
       edges: {
         initial: [],
       },
-    })
-  const reactFlow = useReactFlow<CanvasNode, CanvasEdge>()
-  const nodeCounterRef = useRef(0)
+    });
+  const reactFlow = useReactFlow<CanvasNode, CanvasEdge>();
+  const [dragPreview, setDragPreview] = useState<ShapeDragPreviewState | null>(
+    null,
+  );
+
+  useEffect(() => {
+    const handleWindowDragOver = (event: globalThis.DragEvent) => {
+      setDragPreview((current) =>
+        current
+          ? {
+              ...current,
+              x: event.clientX,
+              y: event.clientY,
+            }
+          : null,
+      );
+    };
+
+    const clearPreview = () => {
+      setDragPreview(null);
+    };
+
+    window.addEventListener("dragover", handleWindowDragOver);
+    window.addEventListener("drop", clearPreview);
+    window.addEventListener("dragend", clearPreview);
+
+    return () => {
+      window.removeEventListener("dragover", handleWindowDragOver);
+      window.removeEventListener("drop", clearPreview);
+      window.removeEventListener("dragend", clearPreview);
+    };
+  }, []);
+
+  const handleShapeDragStart = useCallback(
+    (payload: CanvasShapeDragPayload, position: { x: number; y: number }) => {
+      setDragPreview({
+        ...payload,
+        x: position.x,
+        y: position.y,
+      });
+    },
+    [],
+  );
+
+  const handleShapeDragEnd = useCallback(() => {
+    setDragPreview(null);
+  }, []);
 
   const handleDragOver = useCallback((event: DragEvent<HTMLDivElement>) => {
-    event.preventDefault()
-    event.dataTransfer.dropEffect = "copy"
-  }, [])
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "copy";
+  }, []);
 
   const handleDrop = useCallback(
     (event: DragEvent<HTMLDivElement>) => {
-      event.preventDefault()
+      event.preventDefault();
 
-      const payload = getCanvasShapePayload(event.dataTransfer)
+      const payload = getCanvasShapePayload(event.dataTransfer);
 
       if (!payload) {
-        return
+        return;
       }
-
-      nodeCounterRef.current += 1
 
       const position = reactFlow.screenToFlowPosition({
         x: event.clientX,
         y: event.clientY,
-      })
+      });
 
       const newNode: CanvasNode = {
-        id: `${payload.shape}-${Date.now()}-${nodeCounterRef.current}`,
+        id: createCanvasNodeId(),
         type: CANVAS_NODE_TYPE,
         position: {
           x: position.x - payload.width / 2,
@@ -165,7 +259,7 @@ function CollaborativeCanvasFlow() {
           width: payload.width,
           height: payload.height,
         },
-      }
+      };
 
       onNodesChange([
         {
@@ -173,13 +267,19 @@ function CollaborativeCanvasFlow() {
           item: newNode,
           index: nodes.length,
         } satisfies NodeAddChange<CanvasNode>,
-      ])
+      ]);
+
+      setDragPreview(null);
     },
-    [nodes.length, onNodesChange, reactFlow]
-  )
+    [nodes.length, onNodesChange, reactFlow],
+  );
 
   return (
-    <div className="relative h-full w-full" onDragOver={handleDragOver} onDrop={handleDrop}>
+    <div
+      className="relative h-full w-full"
+      onDragOver={handleDragOver}
+      onDrop={handleDrop}
+    >
       <ReactFlow<CanvasNode, CanvasEdge>
         nodes={nodes}
         edges={edges}
@@ -221,9 +321,13 @@ function CollaborativeCanvasFlow() {
           color="var(--border-default)"
         />
       </ReactFlow>
-      <CanvasShapeToolbar />
+      <CanvasShapeToolbar
+        onShapeDragStart={handleShapeDragStart}
+        onShapeDragEnd={handleShapeDragEnd}
+      />
+      {dragPreview ? <CanvasShapeDragPreview preview={dragPreview} /> : null}
     </div>
-  )
+  );
 }
 
 function CollaborativeCanvasRoom({ projectId }: CollaborativeCanvasProps) {
@@ -251,7 +355,7 @@ function CollaborativeCanvasRoom({ projectId }: CollaborativeCanvasProps) {
         </ClientSideSuspense>
       </LiveblocksConnectionGuard>
     </RoomProvider>
-  )
+  );
 }
 
 export function CollaborativeCanvas({ projectId }: CollaborativeCanvasProps) {
@@ -264,10 +368,10 @@ export function CollaborativeCanvas({ projectId }: CollaborativeCanvasProps) {
       body: JSON.stringify({
         projectId,
       }),
-    })
+    });
 
-    return response.json()
-  }, [projectId])
+    return response.json();
+  }, [projectId]);
 
   return (
     <div className="absolute inset-0">
@@ -275,5 +379,5 @@ export function CollaborativeCanvas({ projectId }: CollaborativeCanvasProps) {
         <CollaborativeCanvasRoom projectId={projectId} />
       </LiveblocksProvider>
     </div>
-  )
+  );
 }
