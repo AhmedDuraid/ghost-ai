@@ -8,10 +8,14 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Current Goal
 
-- Implementing task 09 - move canvas node shadows into shape visuals for shape-following shadows.
+- Implementing task 20 - add canvas node deletion through keyboard and control bar actions.
 
 ## Completed
 
+- Implementing task 20 - add canvas node deletion through keyboard and control bar actions
+  - Added keyboard `Delete` support in `hooks/useKeyboardShortcuts.ts` while preserving the editable-field guard so inline label editing is unaffected.
+  - Added a delete action to the bottom-left canvas control bar beside the undo and redo controls.
+  - Wired both delete triggers through the shared React Flow selected-element deletion path so node and edge removal stays consistent with collaborative canvas history.
 - Implementing task 09 - move canvas node shadows into shape visuals for shape-following shadows
   - Verified the current `components/editor/canvas-node.tsx` issue was still valid because the node root container still applied `shadow-lg`, which produced rectangular shadows for non-rectangular shapes.
   - Removed the shared root shadow and moved the equivalent shadow treatment into `CanvasShapeVisual`.
@@ -180,7 +184,7 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## In Progress
 
-- Implementing task 09 - move canvas node shadows into shape visuals for shape-following shadows
+- Implementing task 20 - add canvas node deletion through keyboard and control bar actions
 
 ## Next Up
 
@@ -196,6 +200,9 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Session Notes
 
+- Implementing task 20 - add canvas node deletion through keyboard and control bar actions
+  - Added a shared selected-element delete action to the collaborative canvas flow for both keyboard and control bar use.
+  - Extended the existing keyboard shortcut hook with `Delete` support while keeping shortcuts disabled during text input and inline editing.
 - Implementing task 09 - move canvas node shadows into shape visuals for shape-following shadows
   - Confirmed the reported shadow issue was still present in `components/editor/canvas-node.tsx`.
   - Moved the shadow styling from the shared node wrapper into `CanvasShapeVisual` so non-rectangular shapes use shape-following shadows.

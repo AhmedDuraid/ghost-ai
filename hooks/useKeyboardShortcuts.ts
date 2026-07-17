@@ -9,6 +9,7 @@ interface UseKeyboardShortcutsOptions {
   reactFlow: ReactFlowInstance<CanvasNode, CanvasEdge>
   onUndo: () => void
   onRedo: () => void
+  onDeleteSelection: () => void
 }
 
 function isEditableTarget(target: EventTarget | null) {
@@ -29,6 +30,7 @@ export function useKeyboardShortcuts({
   reactFlow,
   onUndo,
   onRedo,
+  onDeleteSelection,
 }: UseKeyboardShortcutsOptions) {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -65,6 +67,12 @@ export function useKeyboardShortcuts({
       if (modifierPressed && event.key.toLowerCase() === "y") {
         event.preventDefault()
         onRedo()
+        return
+      }
+
+      if (event.key === "Delete") {
+        event.preventDefault()
+        onDeleteSelection()
       }
     }
 
@@ -73,5 +81,5 @@ export function useKeyboardShortcuts({
     return () => {
       window.removeEventListener("keydown", handleKeyDown)
     }
-  }, [onRedo, onUndo, reactFlow])
+  }, [onDeleteSelection, onRedo, onUndo, reactFlow])
 }

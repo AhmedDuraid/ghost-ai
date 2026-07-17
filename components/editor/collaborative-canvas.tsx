@@ -23,10 +23,12 @@ import {
   ReactFlowProvider,
   useReactFlow,
   type EdgeTypes,
+  type Edge,
   type NodeAddChange,
+  type Node,
   type NodeTypes,
 } from "@xyflow/react";
-import { Minus, Plus, Redo2, ScanSearch, Undo2 } from "lucide-react";
+import { Minus, Plus, Redo2, ScanSearch, Trash2, Undo2 } from "lucide-react";
 import {
   type DragEvent,
   type ReactNode,
@@ -184,16 +186,20 @@ function CanvasShapeDragPreview({
 function CanvasControlBar({
   canUndo,
   canRedo,
+  canDelete,
   onUndo,
   onRedo,
+  onDelete,
   onZoomIn,
   onZoomOut,
   onFitView,
 }: {
   canUndo: boolean;
   canRedo: boolean;
+  canDelete: boolean;
   onUndo: () => void;
   onRedo: () => void;
+  onDelete: () => void;
   onZoomIn: () => void;
   onZoomOut: () => void;
   onFitView: () => void;
@@ -256,6 +262,17 @@ function CanvasControlBar({
         >
           <Redo2 className="h-4 w-4" />
         </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          aria-label="Delete selected nodes and edges"
+          onClick={onDelete}
+          disabled={!canDelete}
+          className="rounded-full text-copy-secondary hover:bg-state-error/10 hover:text-state-error disabled:text-copy-faint"
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
       </div>
     </Panel>
   );
@@ -286,6 +303,25 @@ function CollaborativeCanvasFlow({
   const [dragPreview, setDragPreview] = useState<ShapeDragPreviewState | null>(
     null,
   );
+  const hasSelection = nodes.some((node) => node.selected) || edges.some((edge) => edge.selected);
+
+  const deleteSelectedElements = useCallback(() => {
+    const selectedNodes = reactFlow
+      .getNodes()
+      .filter((node) => node.selected);
+    const selectedEdges = reactFlow
+      .getEdges()
+      .filter((edge) => edge.selected);
+
+    if (selectedNodes.length === 0 && selectedEdges.length === 0) {
+      return;
+    }
+
+    void reactFlow.deleteElements({
+      nodes: selectedNodes as Node[],
+      edges: selectedEdges as Edge[],
+    });
+  }, [reactFlow]);
 
   const edgeTypes: EdgeTypes = {
     [CANVAS_EDGE_TYPE]: (props) => (
@@ -302,6 +338,7 @@ function CollaborativeCanvasFlow({
     reactFlow,
     onUndo: undo,
     onRedo: redo,
+    onDeleteSelection: deleteSelectedElements,
   });
 
   useEffect(() => {
@@ -486,8 +523,10 @@ function CollaborativeCanvasFlow({
         <CanvasControlBar
           canUndo={canUndo}
           canRedo={canRedo}
+          canDelete={hasSelection}
           onUndo={undo}
           onRedo={redo}
+          onDelete={deleteSelectedElements}
           onZoomIn={() => {
             void reactFlow.zoomIn({ duration: 180 });
           }}
