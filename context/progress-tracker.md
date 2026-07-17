@@ -122,6 +122,21 @@ Update this file whenever the current phase, active feature, or implementation s
   - Started implementation of `context/feature-specs/10-liveblocks-setup.md`.
   - Completed implementation of `context/feature-specs/10-liveblocks-setup.md`.
   - Verified `context/feature-specs/10-liveblocks-setup.md` with `npm run build`.
+- Implementing task 11/12 - base collaborative canvas and shape drop panel
+  - Implemented `context/feature-specs/11-base-canvas.md` and `context/feature-specs/12-shape-panel.md`.
+  - Added `types/canvas.ts` with shared canvas node data, shape definitions, default colors, type IDs, and default shape sizes.
+  - Added `components/editor/collaborative-canvas.tsx` to mount `LiveblocksProvider`, `RoomProvider`, `ClientSideSuspense`, connection error handling, and a Liveblocks-synced React Flow canvas.
+  - Added `components/editor/canvas-node.tsx` with the temporary bordered custom node renderer and four connection handles.
+  - Added `components/editor/canvas-shape-toolbar.tsx` with the bottom floating draggable shape toolbar and drag payload helpers.
+  - Replaced the workspace placeholder in `components/editor/workspace-shell.tsx` with the collaborative canvas surface.
+  - Extended `liveblocks.config.ts` with typed room storage for the shared React Flow document.
+  - Started implementation of `context/feature-specs/11-base-canvas.md` and `context/feature-specs/12-shape-panel.md`.
+  - Completed implementation of `context/feature-specs/11-base-canvas.md` and `context/feature-specs/12-shape-panel.md`.
+  - Verified `context/feature-specs/11-base-canvas.md` and `context/feature-specs/12-shape-panel.md` with `npm run build`.
+- Implementing task 09 - fix canvas shape rendering
+  - Updated `components/editor/canvas-node.tsx` so the node renderer uses `data.shape` and draws distinct rectangle, diamond, circle, pill, cylinder, and hexagon visuals per node.
+  - Preserved per-node label colors, sizing, and connection handles while removing the shared rounded-rectangle-only rendering path.
+  - Verified the fix with `npm run build`.
 
 ## In Progress
 
@@ -194,6 +209,15 @@ Update this file whenever the current phase, active feature, or implementation s
   - Switched the Liveblocks client to lazy initialization after the build surfaced a module-evaluation requirement for `LIVEBLOCKS_SECRET_KEY`.
   - Completed implementation of `context/feature-specs/10-liveblocks-setup.md`.
   - Verified the feature with `npm run build`.
+- Implementing task 11/12 - base collaborative canvas and shape drop panel
+  - Started implementation of `context/feature-specs/11-base-canvas.md` and `context/feature-specs/12-shape-panel.md`.
+  - Replaced the workspace placeholder with a Liveblocks-backed React Flow canvas room.
+  - Added the custom canvas node renderer, shape toolbar drag payloads, and drop-to-create node flow.
+  - Added typed Liveblocks storage initialization for the shared React Flow document.
+  - Completed implementation of `context/feature-specs/11-base-canvas.md` and `context/feature-specs/12-shape-panel.md`.
+  - Verified the feature with `npm run build`.
+- Implementing task 09 - fix canvas shape rendering
+  - Started the canvas shape bug fix after confirming nodes were storing unique `data.shape` values but the renderer was ignoring them.
 - Implementing local font migration - switched app fonts to local assets
   - Added local Geist Sans and Geist Mono font assets under `app/fonts/`.
   - Replaced `next/font/google` with `next/font/local` in `app/layout.tsx`.
