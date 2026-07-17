@@ -31,6 +31,8 @@ export const NODE_COLORS: readonly CanvasNodeColor[] = [
 ] as const
 
 export const DEFAULT_NODE_COLOR = NODE_COLORS[0]
+export const MIN_CANVAS_NODE_WIDTH = 96
+export const MIN_CANVAS_NODE_HEIGHT = 56
 
 export interface CanvasNodeData extends Record<string, unknown> {
   label: string

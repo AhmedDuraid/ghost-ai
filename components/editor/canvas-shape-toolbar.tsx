@@ -30,7 +30,8 @@ const SHAPE_ITEMS: Array<{
 ]
 
 export interface CanvasShapeToolbarProps {
-  onShapeDragStart?: (shape: CanvasNodeShape) => void
+  onShapeDragStart?: (payload: CanvasShapeDragPayload, position: { x: number; y: number }) => void
+  onShapeDragEnd?: () => void
 }
 
 export interface CanvasShapeDragPayload {
@@ -75,13 +76,22 @@ export function getCanvasShapePayload(
 
 export function CanvasShapeToolbar({
   onShapeDragStart,
+  onShapeDragEnd,
 }: CanvasShapeToolbarProps) {
   const handleDragStart = (event: DragEvent<HTMLButtonElement>, shape: CanvasNodeShape) => {
     const template = SHAPE_TEMPLATES[shape]
+    const dragImage = document.createElement("canvas")
+
+    dragImage.width = 1
+    dragImage.height = 1
 
     event.dataTransfer.effectAllowed = "copy"
     event.dataTransfer.setData(CANVAS_SHAPE_MIME_TYPE, JSON.stringify(template))
-    onShapeDragStart?.(shape)
+    event.dataTransfer.setDragImage(dragImage, 0, 0)
+    onShapeDragStart?.(template, {
+      x: event.clientX,
+      y: event.clientY,
+    })
   }
 
   return (
@@ -97,6 +107,7 @@ export function CanvasShapeToolbar({
             aria-label={`Drag ${label} shape`}
             title={label}
             onDragStart={(event) => handleDragStart(event, shape)}
+            onDragEnd={onShapeDragEnd}
             className="rounded-full text-copy-secondary hover:bg-subtle hover:text-copy-primary"
           >
             <Icon className="h-4 w-4" />

@@ -23,11 +23,22 @@ import {
   type NodeAddChange,
   type NodeTypes,
 } from "@xyflow/react"
-import { type DragEvent, type ReactNode, useCallback, useRef, useState } from "react"
+import {
+  type DragEvent,
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react"
 
-import { CanvasNodeRenderer } from "@/components/editor/canvas-node"
+import {
+  CanvasNodeRenderer,
+  CanvasShapeVisual,
+} from "@/components/editor/canvas-node"
 import {
   CanvasShapeToolbar,
+  type CanvasShapeDragPayload,
   getCanvasShapePayload,
 } from "@/components/editor/canvas-shape-toolbar"
 import {
@@ -54,6 +65,11 @@ const EDGE_TYPES: EdgeTypes = {
 
 interface CollaborativeCanvasProps {
   projectId: string
+}
+
+interface ShapeDragPreviewState extends CanvasShapeDragPayload {
+  x: number
+  y: number
 }
 
 function CanvasLoadingState() {
@@ -113,6 +129,27 @@ function LiveblocksConnectionGuard({ children }: { children: ReactNode }) {
   return <>{children}</>
 }
 
+function CanvasShapeDragPreview({ preview }: { preview: ShapeDragPreviewState }) {
+  return (
+    <div
+      className="pointer-events-none fixed left-0 top-0 z-30 opacity-80"
+      style={{
+        width: preview.width,
+        height: preview.height,
+        transform: `translate(${preview.x - preview.width / 2}px, ${preview.y - preview.height / 2}px)`,
+      }}
+    >
+      <div className="relative h-full w-full">
+        <CanvasShapeVisual
+          color={DEFAULT_NODE_COLOR}
+          shape={preview.shape}
+          selected={true}
+        />
+      </div>
+    </div>
+  )
+}
+
 function CollaborativeCanvasFlow() {
   const { nodes, edges, onNodesChange, onEdgesChange, onConnect, onDelete } =
     useLiveblocksFlow<CanvasNode, CanvasEdge>({
@@ -126,6 +163,50 @@ function CollaborativeCanvasFlow() {
     })
   const reactFlow = useReactFlow<CanvasNode, CanvasEdge>()
   const nodeCounterRef = useRef(0)
+  const [dragPreview, setDragPreview] = useState<ShapeDragPreviewState | null>(null)
+
+  useEffect(() => {
+    const handleWindowDragOver = (event: globalThis.DragEvent) => {
+      setDragPreview((current) =>
+        current
+          ? {
+              ...current,
+              x: event.clientX,
+              y: event.clientY,
+            }
+          : null
+      )
+    }
+
+    const clearPreview = () => {
+      setDragPreview(null)
+    }
+
+    window.addEventListener("dragover", handleWindowDragOver)
+    window.addEventListener("drop", clearPreview)
+    window.addEventListener("dragend", clearPreview)
+
+    return () => {
+      window.removeEventListener("dragover", handleWindowDragOver)
+      window.removeEventListener("drop", clearPreview)
+      window.removeEventListener("dragend", clearPreview)
+    }
+  }, [])
+
+  const handleShapeDragStart = useCallback(
+    (payload: CanvasShapeDragPayload, position: { x: number; y: number }) => {
+      setDragPreview({
+        ...payload,
+        x: position.x,
+        y: position.y,
+      })
+    },
+    []
+  )
+
+  const handleShapeDragEnd = useCallback(() => {
+    setDragPreview(null)
+  }, [])
 
   const handleDragOver = useCallback((event: DragEvent<HTMLDivElement>) => {
     event.preventDefault()
@@ -174,6 +255,8 @@ function CollaborativeCanvasFlow() {
           index: nodes.length,
         } satisfies NodeAddChange<CanvasNode>,
       ])
+
+      setDragPreview(null)
     },
     [nodes.length, onNodesChange, reactFlow]
   )
@@ -221,7 +304,11 @@ function CollaborativeCanvasFlow() {
           color="var(--border-default)"
         />
       </ReactFlow>
-      <CanvasShapeToolbar />
+      <CanvasShapeToolbar
+        onShapeDragStart={handleShapeDragStart}
+        onShapeDragEnd={handleShapeDragEnd}
+      />
+      {dragPreview ? <CanvasShapeDragPreview preview={dragPreview} /> : null}
     </div>
   )
 }

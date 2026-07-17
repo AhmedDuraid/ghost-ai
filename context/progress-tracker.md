@@ -8,10 +8,30 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Current Goal
 
-- No active implementation task.
+- Implementing task 15 - add the floating node color toolbar
 
 ## Completed
 
+- Implementing task 15 - node color toolbar
+  - Implemented `context/feature-specs/15-node-color-toolbar.md`.
+  - Added a floating color toolbar above selected canvas nodes using the predefined `NODE_COLORS` background and text pairs.
+  - Updated node color selection to immediately sync both background and text colors through the existing collaborative React Flow and Liveblocks node state.
+  - Prevented toolbar interactions from dragging nodes or panning the canvas while keeping the current selection and drag/drop behavior unchanged.
+  - Verified `context/feature-specs/15-node-color-toolbar.md` with `npm run build`.
+- Implementing task 14 - node resizing and inline label editing
+  - Implemented `context/feature-specs/14-node-editing.md`.
+  - Added subtle selected-state resize handles to canvas nodes with enforced minimum dimensions.
+  - Added centered inline label editing with double-click activation, empty-label placeholder text, textarea overlay editing, and blur or `Escape` close behavior.
+  - Kept inline text interactions from triggering canvas drag or pan while editing.
+  - Kept label and resize updates connected to the existing collaborative React Flow and Liveblocks node state flow.
+  - Verified `context/feature-specs/14-node-editing.md` with `npm run build`.
+- Implementing task 13 - node shape rendering and drag preview
+  - Implemented `context/feature-specs/13-node-shape.md`.
+  - Updated the canvas node renderer so `rectangle`, `pill`, and `circle` use CSS shapes while `diamond`, `hexagon`, and `cylinder` render as scalable SVGs.
+  - Added selected-state stroke highlighting for rendered node shapes.
+  - Added a cursor-following ghost preview for shape drags using the same shape type and default size as the dropped node.
+  - Kept drag/drop node creation and collaborative canvas state wiring unchanged outside the preview behavior.
+  - Verified `context/feature-specs/13-node-shape.md` with `npm run build`.
 - Implementing local font migration - switched app fonts to local assets
   - Migrated the app font loading from `next/font/google` to `next/font/local`.
   - Added local Geist Sans and Geist Mono `.woff2` assets under `app/fonts/`.
@@ -144,7 +164,7 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Next Up
 
-- Start the next feature unit after selecting its spec.
+- Start the next feature unit after task 15.
 
 ## Open Questions
 
@@ -218,6 +238,15 @@ Update this file whenever the current phase, active feature, or implementation s
   - Verified the feature with `npm run build`.
 - Implementing task 09 - fix canvas shape rendering
   - Started the canvas shape bug fix after confirming nodes were storing unique `data.shape` values but the renderer was ignoring them.
+- Implementing task 14 - node resizing and inline label editing
+  - Started implementation of `context/feature-specs/14-node-editing.md`.
+  - Added minimum-size node resizing with selected-state resize controls on the collaborative canvas.
+  - Added inline node label editing with centered placeholder rendering and textarea-based editing.
+  - Verified the feature with `npm run build`.
+- Implementing task 15 - node color toolbar
+  - Started implementation of `context/feature-specs/15-node-color-toolbar.md`.
+  - Added a floating selected-node color toolbar that applies predefined fill and text color pairs directly in the collaborative canvas state.
+  - Verified the feature with `npm run build`.
 - Implementing local font migration - switched app fonts to local assets
   - Added local Geist Sans and Geist Mono font assets under `app/fonts/`.
   - Replaced `next/font/google` with `next/font/local` in `app/layout.tsx`.
