@@ -28,7 +28,6 @@ import {
   type ReactNode,
   useCallback,
   useEffect,
-  useRef,
   useState,
 } from "react"
 
@@ -129,6 +128,17 @@ function LiveblocksConnectionGuard({ children }: { children: ReactNode }) {
   return <>{children}</>
 }
 
+function createCanvasNodeId() {
+  if (
+    typeof globalThis.crypto !== "undefined" &&
+    typeof globalThis.crypto.randomUUID === "function"
+  ) {
+    return globalThis.crypto.randomUUID()
+  }
+
+  return `node-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
+}
+
 function CanvasShapeDragPreview({ preview }: { preview: ShapeDragPreviewState }) {
   return (
     <div
@@ -162,7 +172,6 @@ function CollaborativeCanvasFlow() {
       },
     })
   const reactFlow = useReactFlow<CanvasNode, CanvasEdge>()
-  const nodeCounterRef = useRef(0)
   const [dragPreview, setDragPreview] = useState<ShapeDragPreviewState | null>(null)
 
   useEffect(() => {
@@ -223,15 +232,13 @@ function CollaborativeCanvasFlow() {
         return
       }
 
-      nodeCounterRef.current += 1
-
       const position = reactFlow.screenToFlowPosition({
         x: event.clientX,
         y: event.clientY,
       })
 
       const newNode: CanvasNode = {
-        id: `${payload.shape}-${Date.now()}-${nodeCounterRef.current}`,
+        id: createCanvasNodeId(),
         type: CANVAS_NODE_TYPE,
         position: {
           x: position.x - payload.width / 2,

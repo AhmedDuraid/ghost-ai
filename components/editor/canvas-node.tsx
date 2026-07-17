@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import {
   Handle,
@@ -6,14 +6,14 @@ import {
   Position,
   useReactFlow,
   type NodeProps,
-} from "@xyflow/react"
+} from "@xyflow/react";
 import {
   type ChangeEvent,
   type KeyboardEvent,
   useEffect,
   useRef,
   useState,
-} from "react"
+} from "react";
 
 import {
   NODE_COLORS,
@@ -21,18 +21,18 @@ import {
   MIN_CANVAS_NODE_WIDTH,
   type CanvasNode,
   type CanvasNodeColor,
-} from "@/types/canvas"
+} from "@/types/canvas";
 
 const HANDLE_CLASS_NAME =
-  "!h-3 !w-3 !border-2 !border-copy-primary !bg-copy-primary opacity-0 transition-opacity duration-150 group-hover:opacity-100"
+  "!h-3 !w-3 !border-2 !border-copy-primary !bg-copy-primary opacity-0 transition-opacity duration-150 group-hover:opacity-100";
 const RESIZER_HANDLE_CLASS_NAME =
-  "!h-3 !w-3 !rounded-full !border !border-surface-border !bg-elevated !shadow-sm"
-const RESIZER_LINE_CLASS_NAME = "!border-border-subtle"
+  "!h-3 !w-3 !rounded-full !border !border-surface-border !bg-elevated !shadow-sm";
+const RESIZER_LINE_CLASS_NAME = "!border-border-subtle";
 
 interface CanvasShapeVisualProps {
-  color: CanvasNode["data"]["color"]
-  shape: CanvasNode["data"]["shape"]
-  selected?: boolean
+  color: CanvasNode["data"]["color"];
+  shape: CanvasNode["data"]["shape"];
+  selected?: boolean;
 }
 
 export function CanvasShapeVisual({
@@ -40,13 +40,13 @@ export function CanvasShapeVisual({
   shape,
   selected = false,
 }: CanvasShapeVisualProps) {
-  const stroke = selected ? "var(--text-primary)" : "var(--border-default)"
+  const stroke = selected ? "var(--text-primary)" : "var(--border-default)";
   const sharedShapeProps = {
     fill: color.fill,
     stroke,
     strokeWidth: 1.5,
     vectorEffect: "non-scaling-stroke" as const,
-  }
+  };
 
   switch (shape) {
     case "rectangle":
@@ -59,7 +59,7 @@ export function CanvasShapeVisual({
             borderColor: stroke,
           }}
         />
-      )
+      );
     case "circle":
       return (
         <div
@@ -70,7 +70,7 @@ export function CanvasShapeVisual({
             borderColor: stroke,
           }}
         />
-      )
+      );
     case "pill":
       return (
         <div
@@ -81,7 +81,7 @@ export function CanvasShapeVisual({
             borderColor: stroke,
           }}
         />
-      )
+      );
     case "diamond":
       return (
         <svg
@@ -92,7 +92,7 @@ export function CanvasShapeVisual({
         >
           <polygon points="50,2 98,50 50,98 2,50" {...sharedShapeProps} />
         </svg>
-      )
+      );
     case "cylinder":
       return (
         <svg
@@ -114,7 +114,7 @@ export function CanvasShapeVisual({
             vectorEffect="non-scaling-stroke"
           />
         </svg>
-      )
+      );
     case "hexagon":
       return (
         <svg
@@ -123,11 +123,14 @@ export function CanvasShapeVisual({
           className="absolute inset-0 h-full w-full"
           preserveAspectRatio="none"
         >
-          <polygon points="24,6 76,6 98,50 76,94 24,94 2,50" {...sharedShapeProps} />
+          <polygon
+            points="24,6 76,6 98,50 76,94 24,94 2,50"
+            {...sharedShapeProps}
+          />
         </svg>
-      )
+      );
     default:
-      return null
+      return null;
   }
 }
 
@@ -136,71 +139,71 @@ export function CanvasNodeRenderer({
   data,
   selected,
 }: NodeProps<CanvasNode>) {
-  const { updateNodeData } = useReactFlow<CanvasNode>()
-  const [isEditing, setIsEditing] = useState(false)
-  const [draftLabel, setDraftLabel] = useState(data.label)
-  const [hoveredColorFill, setHoveredColorFill] = useState<string | null>(null)
-  const textareaRef = useRef<HTMLTextAreaElement | null>(null)
+  const { updateNodeData } = useReactFlow<CanvasNode>();
+  const [isEditing, setIsEditing] = useState(false);
+  const [draftLabel, setDraftLabel] = useState(data.label);
+  const [hoveredColorFill, setHoveredColorFill] = useState<string | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   useEffect(() => {
     if (!isEditing) {
-      setDraftLabel(data.label)
+      setDraftLabel(data.label);
     }
-  }, [data.label, isEditing])
+  }, [data.label, isEditing]);
 
   useEffect(() => {
     if (!isEditing) {
-      return
+      return;
     }
 
-    const textarea = textareaRef.current
+    const textarea = textareaRef.current;
 
     if (!textarea) {
-      return
+      return;
     }
 
-    textarea.focus()
-    textarea.setSelectionRange(textarea.value.length, textarea.value.length)
-  }, [isEditing])
+    textarea.focus();
+    textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+  }, [isEditing]);
 
   useEffect(() => {
-    const textarea = textareaRef.current
+    const textarea = textareaRef.current;
 
     if (!textarea) {
-      return
+      return;
     }
 
-    textarea.style.height = "0px"
-    textarea.style.height = `${textarea.scrollHeight}px`
-  }, [draftLabel, isEditing])
+    textarea.style.height = "0px";
+    textarea.style.height = `${textarea.scrollHeight}px`;
+  }, [draftLabel, isEditing]);
 
   const openEditing = () => {
-    setDraftLabel(data.label)
-    setIsEditing(true)
-  }
+    setDraftLabel(data.label);
+    setIsEditing(true);
+  };
 
   const closeEditing = () => {
-    setIsEditing(false)
-  }
+    setIsEditing(false);
+  };
 
   const handleLabelChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
-    const nextLabel = event.target.value
+    const nextLabel = event.target.value;
 
-    setDraftLabel(nextLabel)
-    updateNodeData(id, { label: nextLabel })
-  }
+    setDraftLabel(nextLabel);
+    updateNodeData(id, { label: nextLabel });
+  };
 
   const handleLabelKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
     if (event.key === "Escape") {
-      event.preventDefault()
-      event.stopPropagation()
-      closeEditing()
+      event.preventDefault();
+      event.stopPropagation();
+      closeEditing();
     }
-  }
+  };
 
   const handleColorSelect = (color: CanvasNodeColor) => {
-    updateNodeData(id, { color })
-  }
+    updateNodeData(id, { color });
+  };
 
   return (
     <div
@@ -216,8 +219,8 @@ export function CanvasNodeRenderer({
         >
           {NODE_COLORS.map((color) => {
             const isActive =
-              data.color.fill === color.fill && data.color.text === color.text
-            const isHovered = hoveredColorFill === color.fill
+              data.color.fill === color.fill && data.color.text === color.text;
+            const isHovered = hoveredColorFill === color.fill;
 
             return (
               <button
@@ -226,14 +229,14 @@ export function CanvasNodeRenderer({
                 aria-label={`Set node color ${color.fill}`}
                 aria-pressed={isActive}
                 onClick={(event) => {
-                  event.stopPropagation()
-                  handleColorSelect(color)
+                  event.stopPropagation();
+                  handleColorSelect(color);
                 }}
                 onPointerDown={(event) => event.stopPropagation()}
                 onMouseEnter={() => setHoveredColorFill(color.fill)}
                 onMouseLeave={() =>
                   setHoveredColorFill((current) =>
-                    current === color.fill ? null : current
+                    current === color.fill ? null : current,
                   )
                 }
                 className="h-5 w-5 rounded-full border-2 transition duration-150 ease-out hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-copy-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
@@ -250,7 +253,7 @@ export function CanvasNodeRenderer({
                   {isActive ? "Active node color" : "Set node color"}
                 </span>
               </button>
-            )
+            );
           })}
         </div>
       ) : null}
@@ -271,7 +274,11 @@ export function CanvasNodeRenderer({
         selected={selected}
       />
 
-      <Handle type="target" position={Position.Top} className={HANDLE_CLASS_NAME} />
+      <Handle
+        type="target"
+        position={Position.Top}
+        className={HANDLE_CLASS_NAME}
+      />
       <Handle
         type="target"
         position={Position.Left}
@@ -307,9 +314,16 @@ export function CanvasNodeRenderer({
         ) : (
           <button
             type="button"
+            onKeyDown={(event) => {
+              if (event.key === "Enter" || event.key === "F2") {
+                event.preventDefault();
+                event.stopPropagation();
+                openEditing();
+              }
+            }}
             onDoubleClick={(event) => {
-              event.stopPropagation()
-              openEditing()
+              event.stopPropagation();
+              openEditing();
             }}
             className="flex w-full items-center justify-center bg-transparent px-0 py-0 text-center text-sm font-medium leading-5 outline-none"
           >
@@ -324,5 +338,5 @@ export function CanvasNodeRenderer({
         )}
       </div>
     </div>
-  )
+  );
 }
